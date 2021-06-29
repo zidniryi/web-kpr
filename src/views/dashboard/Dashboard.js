@@ -12,6 +12,12 @@ import {
   CCardText,
   CCardTitle,
   CFormSelect,
+  CTable,
+  CTableHead,
+  CTableRow,
+  CTableHeaderCell,
+  CTableBody,
+  CTableDataCell,
 } from '@coreui/react'
 
 const Dashboard = () => {
@@ -23,10 +29,142 @@ const Dashboard = () => {
   const [lamaTahun, setlamaTahun] = useState('')
   const [floatingBunga, setfloatingBunga] = useState('')
 
-  const _renderResult = () => {
+  const _renderResultBorow = () => {
     return (
-      <CCard style={{ width: '18rem' }}>
-        <CCardHeader>Header</CCardHeader>
+      <CCard>
+        <CCardHeader component="h5">Data Pinjaman Anda</CCardHeader>
+        <CCardBody>
+          <CTable>
+            <CTableBody>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Data Nama</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 50000000</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Uang Muka</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 100.000.000,00</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Tenor</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>10 tahun</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Bunga</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>14.6 % / tahun</CTableDataCell>
+              </CTableRow>
+            </CTableBody>
+          </CTable>
+        </CCardBody>
+      </CCard>
+    )
+  }
+
+  const _renderResultKpr = () => {
+    return (
+      <CCard>
+        <CCardHeader component="h5">KPR Anda</CCardHeader>
+        <CCardBody>
+          <CTable>
+            <CTableBody>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Plafon Pinjaman</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 400.000.000,00</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Angsuran per Periode</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 6.355.768,43</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Total Periode</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>120 bulan</CTableDataCell>
+              </CTableRow>
+            </CTableBody>
+          </CTable>
+        </CCardBody>
+      </CCard>
+    )
+  }
+
+  const _renderTax = () => {
+    return (
+      <CCard>
+        <CCardHeader component="h5">Biaya & Pajak</CCardHeader>
+        <CCardBody>
+          <CTable>
+            <CTableBody>
+              <CTableRow>
+                <CTableHeaderCell scope="row">
+                  Biaya Provisi <br /> <i>(1.5 % plafon)</i>
+                </CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 6.000.000,00</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Biaya Appraisal</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 500.000,00</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Biaya Administrasi</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 450.000,00</CTableDataCell>
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">Total Biaya & Pajak</CTableHeaderCell>
+                <CTableDataCell>:</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp 48.450.000,00</CTableDataCell>
+              </CTableRow>
+            </CTableBody>
+          </CTable>
+        </CCardBody>
+      </CCard>
+    )
+  }
+
+  const _renderTables = () => {
+    return (
+      <CCard>
+        <CCardHeader component="h5">Biaya & Pajak</CCardHeader>
+        <CCardBody>
+          <CTable bordered>
+            <CTableHead>
+              <CTableRow>
+                <CTableHeaderCell scope="col">Bulan	</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Angsuran Bunga	</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Angsuran Pokok	</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Total Angsuran	</CTableHeaderCell>
+                <CTableHeaderCell scope="col">Sisa pinjaman	</CTableHeaderCell>
+
+              </CTableRow>
+            </CTableHead>
+            <CTableBody>
+              <CTableRow>
+                <CTableHeaderCell scope="row">1</CTableHeaderCell>
+                <CTableDataCell>Mark</CTableDataCell>
+                <CTableDataCell>Otto</CTableDataCell>
+                <CTableDataCell>@mdo</CTableDataCell>
+                <CTableDataCell>@mdo</CTableDataCell>
+
+
+              </CTableRow>
+              <CTableRow>
+                <CTableHeaderCell scope="row">2</CTableHeaderCell>
+                <CTableDataCell>Jacob</CTableDataCell>
+                <CTableDataCell>Thornton</CTableDataCell>
+                <CTableDataCell>@mdo</CTableDataCell>
+                <CTableDataCell>@fat</CTableDataCell>
+              </CTableRow>
+      
+            </CTableBody>
+          </CTable>
+        </CCardBody>
       </CCard>
     )
   }
@@ -142,8 +280,16 @@ const Dashboard = () => {
             </div>
           </CCardBody>
         </CCard>
-
+        <hr />
         {/* Here Result */}
+        {_renderResultBorow()}
+        <hr />
+        {_renderResultKpr()}
+        <hr />
+        {_renderTax()}
+        <hr/>
+       {_renderTables()}
+        
       </Fragment>
     </>
   )
