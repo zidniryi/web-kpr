@@ -153,12 +153,12 @@ console.log(resultsDataKPR)
               <CTableRow>
                 <CTableHeaderCell scope="row">Tenor</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{lamaTahun} tahun</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>{lamaTahun} Tahun</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Bunga</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{sukuBungaTahun} Tahun</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>{sukuBungaTahun}%</CTableDataCell>
               </CTableRow>
             </CTableBody>
           </CTable>
