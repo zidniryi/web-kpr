@@ -42,6 +42,89 @@ const countPMT = (princ, terms, intr) => {
 
 }
 
+  const _calculateEffectiveInterest = () => {
+    let propertyPrice = harga;
+    let dpProperty = dp;
+    let effectiveInterest = sukuBungaTahun;
+    let effectiveInterestYear = parseInt(lamaTahun);
+    
+    let totalPropertyPrice = propertyPrice - dpProperty,
+        baseInstallment = 0,
+        monthlyInterest = 0,
+        totalMonthlyInstallment = 0,
+        totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+
+    let monthlySchema = {
+      monthNumber: 0,
+      baseInstallment: baseInstallment,
+      monthlyInterest: monthlyInterest,
+      totalMonthlyInstallment: totalMonthlyInstallment,
+      totalDebtLeft: totalDebtLeft
+    }
+    monthlySchema = {
+        monthNumber: 0,
+        baseInstallment: 0,
+        monthlyInterest: 0,
+        totalMonthlyInstallment: 0,
+        totalDebtLeft: propertyPrice
+    }
+    schemaInstallmentDetail.push(monthlySchema);
+    baseInstallment = totalPropertyPrice / (effectiveInterestYear * 12);
+    for (let i = 1; i <= (effectiveInterestYear * 12); ++i) {
+        monthlyInterest = totalDebtLeft * ((effectiveInterest/12) / 100);
+        totalMonthlyInstallment = baseInstallment + monthlyInterest;
+        totalDebtLeft = totalDebtLeft - baseInstallment;
+        monthlySchema = {
+            monthNumber: i,
+            baseInstallment: baseInstallment,
+            totalMonthlyInstallment: totalMonthlyInstallment,
+            totalDebtLeft: totalDebtLeft
+        }
+        schemaInstallmentDetail.push(monthlySchema);
+    }
+    setskemaTotalCicilan(schemaInstallmentDetail);
+    setresultsDataKPR(schemaInstallmentDetail);
+  }
+
+  const _calculateFlatInterest = () => {
+    let propertyPrice = harga;
+    let dpProperty = dp;
+    let flatInterest = sukuBungaTahun;
+    let flatInterestYear = parseInt(lamaTahun);
+    
+    let totalPropertyPrice = propertyPrice - dpProperty,
+        baseInstallment = 0,
+        monthlyInterest = 0,
+        totalMonthlyInstallment = 0,
+        totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+
+    let monthlySchema = {
+        monthNumber: 0,
+        baseInstallment: 0,
+        monthlyInterest: 0,
+        totalMonthlyInstallment: 0,
+        totalDebtLeft: propertyPrice
+    }
+    schemaInstallmentDetail.push(monthlySchema);
+    baseInstallment = totalPropertyPrice / (flatInterestYear * 12);
+    monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
+    totalMonthlyInstallment = baseInstallment + monthlyInterest;
+    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
+        totalDebtLeft = totalDebtLeft - baseInstallment;
+        monthlySchema = {
+            monthNumber: i,
+            baseInstallment: baseInstallment,
+            monthlyInterest: monthlyInterest,
+            totalMonthlyInstallment: totalMonthlyInstallment,
+            totalDebtLeft: totalDebtLeft
+        }
+        schemaInstallmentDetail.push(monthlySchema);
+    }
+  setskemaTotalCicilan(schemaInstallmentDetail);
+  setresultsDataKPR(schemaInstallmentDetail);
+  }
+
+
   const _calculateAnuitasInterest = () => {
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
@@ -68,19 +151,17 @@ const countPMT = (princ, terms, intr) => {
         totalDebtLeft: propertyPrice
     }
     schemaInstallmentDetail.push(monthlySchema);
-   baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
-   console.log(baseInstallment, "Base Instalemnet cok")
+   baseInstallment = sukuBungaTahun/12 * currentValueProperty;
    console.log(baseInstallment, "Harga", sukuBungaTahun/12 )
     monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
     totalMonthlyInstallment = baseInstallment + monthlyInterest;
     for (let i = 1; i <= (flatInterestYear * 12); ++i) {
-        let totalMain =  countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun) - baseInstallment
-        totalDebtLeft = totalDebtLeft - totalMain;
+        totalDebtLeft = totalDebtLeft - baseInstallment;
         monthlySchema = {
             monthNumber: i,
             monthlyInterest: countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun),
             baseInstallment: baseInstallment,
-            totalMonthlyInstallment: totalMain,
+            totalMonthlyInstallment: totalMonthlyInstallment,
             totalDebtLeft: totalDebtLeft
         }
         schemaInstallmentDetail.push(monthlySchema);
@@ -237,7 +318,7 @@ const countPMT = (princ, terms, intr) => {
                 <CTableDataCell> Rp {data.monthlyInterest}</CTableDataCell>
                 <CTableDataCell>
                 Rp {data.baseInstallment.toFixed(2)}</CTableDataCell>
-                <CTableDataCell>Rp {data.totalMonthlyInstallment.toFixed(2)}</CTableDataCell>
+                <CTableDataCell>Rp {data.totalMonthlyInstallment}</CTableDataCell>
                 <CTableDataCell>Rp {data.totalDebtLeft}</CTableDataCell>
               </CTableRow> 
                 ))
