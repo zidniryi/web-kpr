@@ -78,10 +78,10 @@ const countPMT = (princ, terms, intr) => {
         console.log()
         monthlySchema = {
             monthNumber: i,
-            monthlyInterest: parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun)),
-            baseInstallment: parseFloat(sukuBungaTahun/12 * finalScheme / 100),
-            totalMonthlyInstallment: parseFloat(totalMain),
-            totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
+            monthlyInterest: countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun),
+            baseInstallment: sukuBungaTahun/12 * finalScheme / 100,
+            totalMonthlyInstallment: totalMain,
+            totalDebtLeft: totalDebtLeft
         }
 
         
