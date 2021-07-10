@@ -130,17 +130,17 @@ const countPMT = (princ, terms, intr) => {
               <CTableRow>
                 <CTableHeaderCell scope="row">Harga KPR</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>Rp {harga}</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp {parseFloat(harga).toLocaleString("id-ID")}</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Uang Muka</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>Rp {dp/100 * harga}</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>Rp {parseFloat(dp/100 * harga).toLocaleString("id-ID")} </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Tenor</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{lamaTahun} Tahun</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>{lamaTahun} Tahun ({lamaTahun*12} Bulan)</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Bunga</CTableHeaderCell>
@@ -242,11 +242,11 @@ const countPMT = (princ, terms, intr) => {
                 resultsDataKPR.map((data, index) => (
                <CTableRow key={index}>
                 <CTableHeaderCell scope="row"><center>{data.monthNumber}</center></CTableHeaderCell>
-                <CTableDataCell> Rp {data.monthlyInterest}</CTableDataCell>
+                <CTableDataCell> Rp {parseFloat(data.monthlyInterest.toFixed(2)).toLocaleString("id-ID")}</CTableDataCell>
                 <CTableDataCell>
-                Rp {data.baseInstallment.toFixed(2)}</CTableDataCell>
-                <CTableDataCell>Rp {data.totalMonthlyInstallment.toFixed(2)}</CTableDataCell>
-                <CTableDataCell>Rp { data.totalDebtLeft < maxFloat ? 0 : data.totalDebtLeft.toLocaleString('id')  }</CTableDataCell>
+                Rp {parseFloat(data.baseInstallment.toFixed(2)).toLocaleString("id-ID")}</CTableDataCell>
+                <CTableDataCell>Rp {parseFloat(data.totalMonthlyInstallment.toFixed(2)).toLocaleString("id-ID") }</CTableDataCell>
+                <CTableDataCell>Rp { data.totalDebtLeft < maxFloat ? 0 : parseFloat(data.totalDebtLeft).toLocaleString("id-ID") }</CTableDataCell>
               </CTableRow> 
                 ))
               }     
