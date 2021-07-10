@@ -51,8 +51,6 @@ const countPMT = (princ, terms, intr) => {
 
     let flatInterest = sukuBungaTahun / 12;
     let flatInterestYear = parseInt(lamaTahun);
-    console.log(dpProperty)
-    console.log(flatInterest.toFixed(2))
     
     let totalPropertyPrice = propertyPrice - dpProperty,
         monthlyInterest = 0,
@@ -65,29 +63,37 @@ const countPMT = (princ, terms, intr) => {
         monthlyInterest: 0,
         baseInstallment: 0,
         totalMonthlyInstallment: 0,
-        totalDebtLeft: propertyPrice
+        totalDebtLeft: currentValueProperty
     }
     schemaInstallmentDetail.push(monthlySchema);
    baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
-   console.log(baseInstallment, "Base Instalemnet cok")
-   console.log(baseInstallment, "Harga", sukuBungaTahun/12 )
     monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
     totalMonthlyInstallment = baseInstallment + monthlyInterest;
     for (let i = 1; i <= (flatInterestYear * 12); ++i) {
-        let totalMain =  countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun) - baseInstallment
+        const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
+        let totalMain =  countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun) - sukuBungaTahun/12 * finalScheme / 100
         totalDebtLeft = totalDebtLeft - totalMain;
+         
+        console.log(i-1)
+        console.log()
         monthlySchema = {
             monthNumber: i,
-            monthlyInterest: countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun),
-            baseInstallment: baseInstallment,
-            totalMonthlyInstallment: totalMain,
-            totalDebtLeft: totalDebtLeft
+            monthlyInterest: parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun)),
+            baseInstallment: parseFloat(sukuBungaTahun/12 * finalScheme / 100),
+            totalMonthlyInstallment: parseFloat(totalMain),
+            totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
         }
+
+        
         schemaInstallmentDetail.push(monthlySchema);
+        console.log(schemaInstallmentDetail)
+
     }
+
+
+
   setskemaTotalCicilan(schemaInstallmentDetail);
   setresultsDataKPR(schemaInstallmentDetail);
-  console.log(schemaInstallmentDetail)
   }
 
 
@@ -214,6 +220,8 @@ const countPMT = (princ, terms, intr) => {
   // }
 
   const _renderTables = () => {
+   const maxFloat = parseFloat(1).toFixed(2)
+
     return (
       <CCard>
         <CCardHeader component="h5">Biaya & Pajak</CCardHeader>
@@ -238,7 +246,7 @@ const countPMT = (princ, terms, intr) => {
                 <CTableDataCell>
                 Rp {data.baseInstallment.toFixed(2)}</CTableDataCell>
                 <CTableDataCell>Rp {data.totalMonthlyInstallment.toFixed(2)}</CTableDataCell>
-                <CTableDataCell>Rp {data.totalDebtLeft}</CTableDataCell>
+                <CTableDataCell>Rp { data.totalDebtLeft < maxFloat ? 0 : data.totalDebtLeft.toLocaleString('id')  }</CTableDataCell>
               </CTableRow> 
                 ))
               }     
