@@ -30,6 +30,11 @@ const Dashboard = () => {
   const [schemaInstallmentDetail, setskemaTotalCicilan] = useState([])
   // const [skemaCicilanBulanan, setskemaCicilanBulanan] = useState('')
   const [resultsDataKPR, setresultsDataKPR] = useState([]);
+
+  // For float
+  const [floatInterest, setfloatInterest] = useState(0)
+  const [floatYears, setfloatYears] = useState(0)
+
   
 
 const countPMT = (princ, terms, intr) => {
@@ -42,14 +47,18 @@ const countPMT = (princ, terms, intr) => {
 
 }
 
+
   const _calculateAnuitasInterest = () => {
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     // Left price 500 jt - dp
     let currentValueProperty = harga - dpProperty
     const longMonthInstalemnt = lamaTahun * 12
+    const longMonthInstalemntMix = floatYears * 12
 
     let flatInterest = sukuBungaTahun / 12;
+    let flatInterestMix = floatInterest / 12
+  
     let flatInterestYear = parseInt(lamaTahun);
     
     let totalPropertyPrice = propertyPrice - dpProperty,
@@ -78,10 +87,10 @@ const countPMT = (princ, terms, intr) => {
         console.log()
         monthlySchema = {
             monthNumber: i,
-            monthlyInterest: countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun),
-            baseInstallment: sukuBungaTahun/12 * finalScheme / 100,
-            totalMonthlyInstallment: totalMain,
-            totalDebtLeft: totalDebtLeft
+            monthlyInterest: parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun)),
+            baseInstallment: parseFloat(sukuBungaTahun/12 * finalScheme / 100),
+            totalMonthlyInstallment: parseFloat(totalMain),
+            totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
         }
 
         
@@ -90,7 +99,64 @@ const countPMT = (princ, terms, intr) => {
 
     }
 
+  setskemaTotalCicilan(schemaInstallmentDetail);
+  setresultsDataKPR(schemaInstallmentDetail);
+  }
 
+
+
+  const _calculateMixInterest = () => {
+    let propertyPrice = harga;
+    let dpProperty = dp/100 * harga;
+    // Left price 500 jt - dp
+    let currentValueProperty = harga - dpProperty
+    const longInstalmentMix = floatYears * 12
+    const longMonthInstalemnt = lamaTahun * 12
+    const longResMinus = longMonthInstalemnt - longInstalmentMix
+    const longRes = longMonthInstalemnt + longResMinus
+ 
+
+    let flatInterest = sukuBungaTahun / 12;
+    let flatInterestYear = parseInt(lamaTahun);
+    
+    let totalPropertyPrice = propertyPrice - dpProperty,
+        monthlyInterest = 0,
+        baseInstallment = 0,
+        totalMonthlyInstallment = 0,
+        totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+
+    let monthlySchema = {
+        monthNumber: 0,
+        monthlyInterest: 0,
+        baseInstallment: 0,
+        totalMonthlyInstallment: 0,
+        totalDebtLeft: currentValueProperty
+    }
+    schemaInstallmentDetail.push(monthlySchema);
+   baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
+    monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
+    totalMonthlyInstallment = baseInstallment + monthlyInterest;
+    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
+        const mixCurrentValue = i >= parseInt(longInstalmentMix) ? parseInt(schemaInstallmentDetail[longInstalmentMix]?.totalDebtLeft) : " "
+
+        const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
+        let totalMain = i <= longInstalmentMix ?  countPMT(currentValueProperty, longMonthInstalemnt, floatInterest) - floatInterest/12 * finalScheme / 100 : countPMT(mixCurrentValue, longResMinus, sukuBungaTahun) - sukuBungaTahun/12 * finalScheme / 100
+        totalDebtLeft = totalDebtLeft - totalMain;
+         
+        // console.log(schemaInstallmentDetail)
+        console.log()
+        monthlySchema = {
+            monthNumber: i,
+            monthlyInterest: i <= longInstalmentMix ?  parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, floatInterest)) : parseFloat(countPMT(mixCurrentValue, longResMinus, sukuBungaTahun)),
+            baseInstallment: i <= longInstalmentMix ? parseFloat(floatInterest/12 * finalScheme / 100) :  parseFloat(sukuBungaTahun/12 * finalScheme / 100),
+            totalMonthlyInstallment: parseFloat(totalMain),
+            totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
+        }
+  console.log(floatInterest)
+        
+        schemaInstallmentDetail.push(monthlySchema);
+
+    }
 
   setskemaTotalCicilan(schemaInstallmentDetail);
   setresultsDataKPR(schemaInstallmentDetail);
@@ -103,7 +169,8 @@ const countPMT = (princ, terms, intr) => {
   // }
 
   const calculateKPR = () => {
-    _calculateAnuitasInterest()
+    if(sukuBunga === 'mix')  _calculateMixInterest()
+    else _calculateAnuitasInterest()
   }
 
 
@@ -140,7 +207,7 @@ const countPMT = (princ, terms, intr) => {
               <CTableRow>
                 <CTableHeaderCell scope="row">Tenor</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{lamaTahun} Tahun ({lamaTahun*12} Bulan)</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>{lamaTahun} Tahun ({lamaTahun*12}) Bulan</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Bunga</CTableHeaderCell>
@@ -257,21 +324,49 @@ const countPMT = (princ, terms, intr) => {
     )
   }
 
+console.log(resultsDataKPR.length)
   const _renderPageResult = () => {
   if (resultsDataKPR.length > 0)
   return (
       <div>
         {_renderResultBorow()}
-        {/* <hr />
-        {_renderResultKpr()} */}
         <hr />
-        {/* {_renderTax()}
-        <hr/> */}
        {_renderTables()}
       </div>
     )
   }
 
+const _renderMix = () => {
+  if(sukuBunga === 'mix'){
+    return(
+      <Fragment>
+        <hr />
+            <b>Suku Bunga Per Tahun (Float)</b>
+            <CInputGroup className="mb-3">
+              <CFormControl
+                placeholder="Suku bunga flat"
+                aria-label="Recipient's username"
+                aria-describedby="basic-addon2"
+                onChange={(value) => setfloatInterest(value.target.value)}
+              />
+              <CInputGroupText id="basic-addon2">% per tahun</CInputGroupText>
+            </CInputGroup>
+            <hr />
+            <b>Lama Pinjaman (Float)</b>
+            <CFormSelect
+              aria-label="Default select example"
+              onChange={(value) => setfloatYears(value.target.value)}
+            >
+              {countYears().map((year, index) => (
+               <option value={year} key={index}>{year} Tahun</option>
+              ))}
+
+            </CFormSelect>
+            <hr />
+      </Fragment>
+    )
+  }
+}
   return (
     <>
       <Fragment>
@@ -289,6 +384,8 @@ const countPMT = (princ, terms, intr) => {
               {/* <option value="efective">Efektif</option>
               <option value="flat">Flat</option> */}
               <option value="flat">Anuitas</option>
+              <option value="mix">Mix</option>
+
             </CFormSelect>
             {/* <hr /> */}
             {/* <b>Jenis Subsidi</b>
@@ -320,8 +417,6 @@ const countPMT = (princ, terms, intr) => {
                 placeholder="Dalam persen"
                 aria-label="harga"
                 aria-describedby="basic-addon1"
-                // type="number"
-                // min="0"
                 onChange={(value) => setdp(value.target.value)}
               />
             </CInputGroup>
@@ -348,23 +443,7 @@ const countPMT = (princ, terms, intr) => {
 
             </CFormSelect>
             <hr />
-            {/* <b>Masa Kredit Fix</b>
-            <CFormSelect aria-label="Default select example">
-              <option value="1">1 Tahun</option>
-              <option value="2">2 Tahun</option>
-              <option value="3">3 Tahun</option>
-            </CFormSelect>
-            <hr /> */}
-            {/* <b>Suku Bunga Floating</b>
-            <CInputGroup className="mb-3">
-              <CFormControl
-                placeholder="Suku bunga floating"
-                aria-describedby="basic-addon2"
-                onChange={(value) => setfloatingBunga(value.target.value)}
-              />
-              <CInputGroupText id="basic-addon2">% per tahun</CInputGroupText>
-            </CInputGroup>
-            <hr /> */}
+            {_renderMix()}
             <div className="d-grid gap-2">
               <CButton
                 onClick={calculateKPR}
