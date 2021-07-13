@@ -163,19 +163,23 @@ const countPMT = (princ, terms, intr) => {
   }
 
 
-  // const calculateKPR = () => {
-  //   if (sukuBunga=="flat") _calculateFlatInterest()
-  //   else _calculateEffectiveInterest()
-  // }
+const setNullData = () => {
+    setresultsDataKPR([])
+    setskemaTotalCicilan([])
+}
 
   const calculateKPR = () => {
-    if(sukuBunga === 'mix')  _calculateMixInterest()
+  setNullData()
+    setTimeout(() => {
+   if(sukuBunga === 'mix')  _calculateMixInterest()
     else _calculateAnuitasInterest()
-  }
+  }, 1000);
+}
+
 
 
  const countYears = () => {
-    const years = 23;
+    const years = 16;
     let dataYears = []
     for (var i = 0; i < years; i++) {
        dataYears.push(i)
@@ -324,7 +328,7 @@ const countPMT = (princ, terms, intr) => {
     )
   }
 
-console.log(resultsDataKPR.length)
+
   const _renderPageResult = () => {
   if (resultsDataKPR.length > 0)
   return (
@@ -367,6 +371,9 @@ const _renderMix = () => {
     )
   }
 }
+
+let dpProperty = dp/100 * harga;
+
   return (
     <>
       <Fragment>
@@ -418,6 +425,13 @@ const _renderMix = () => {
                 aria-label="harga"
                 aria-describedby="basic-addon1"
                 onChange={(value) => setdp(value.target.value)}
+              />
+               <CFormControl
+                placeholder="Total dalam rupiah"
+                aria-label="harga"
+                aria-describedby="basic-addon1"
+                readOnly
+                value={`Rp ${dpProperty}`}
               />
             </CInputGroup>
             <hr />
