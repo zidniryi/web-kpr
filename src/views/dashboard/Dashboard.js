@@ -22,13 +22,10 @@ import {
 const Dashboard = () => {
   const [sukuBunga, setsukuBunga] = useState('')
   const [sukuBungaTahun, setsukuBungaTahun] = useState('')
-  // const [subsidi, setsubsidi] = useState('')
   const [harga, setharga] = useState(0)
   const [dp, setdp] = useState(0)
   const [lamaTahun, setlamaTahun] = useState(0)
-  // const [floatingBunga, setfloatingBunga] = useState('')
-  const [schemaInstallmentDetail, setskemaTotalCicilan] = useState([])
-  // const [skemaCicilanBulanan, setskemaCicilanBulanan] = useState('')
+  const [schemaInstallmentDetail, setschemaInstallmentDetail] = useState([])
   const [resultsDataKPR, setresultsDataKPR] = useState([]);
 
   // For float
@@ -49,15 +46,13 @@ const countPMT = (princ, terms, intr) => {
 
 
   const _calculateAnuitasInterest = () => {
+    setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     // Left price 500 jt - dp
     let currentValueProperty = harga - dpProperty
     const longMonthInstalemnt = lamaTahun * 12
-    const longMonthInstalemntMix = floatYears * 12
-
     let flatInterest = sukuBungaTahun / 12;
-    let flatInterestMix = floatInterest / 12
   
     let flatInterestYear = parseInt(lamaTahun);
     
@@ -74,7 +69,7 @@ const countPMT = (princ, terms, intr) => {
         totalMonthlyInstallment: 0,
         totalDebtLeft: currentValueProperty
     }
-    schemaInstallmentDetail.push(monthlySchema);
+  schemaInstallmentDetail.push(monthlySchema);
    baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
     monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
     totalMonthlyInstallment = baseInstallment + monthlyInterest;
@@ -83,8 +78,6 @@ const countPMT = (princ, terms, intr) => {
         let totalMain =  countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun) - sukuBungaTahun/12 * finalScheme / 100
         totalDebtLeft = totalDebtLeft - totalMain;
          
-        console.log(i-1)
-        console.log()
         monthlySchema = {
             monthNumber: i,
             monthlyInterest: parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun)),
@@ -95,25 +88,23 @@ const countPMT = (princ, terms, intr) => {
 
         
         schemaInstallmentDetail.push(monthlySchema);
-        console.log(schemaInstallmentDetail)
 
     }
 
-  setskemaTotalCicilan(schemaInstallmentDetail);
+  setschemaInstallmentDetail(schemaInstallmentDetail);
   setresultsDataKPR(schemaInstallmentDetail);
   }
 
 
 
   const _calculateMixInterest = () => {
+    setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
-    // Left price 500 jt - dp
     let currentValueProperty = harga - dpProperty
     const longInstalmentMix = floatYears * 12
     const longMonthInstalemnt = lamaTahun * 12
     const longResMinus = longMonthInstalemnt - longInstalmentMix
-    const longRes = longMonthInstalemnt + longResMinus
  
 
     let flatInterest = sukuBungaTahun / 12;
@@ -133,7 +124,7 @@ const countPMT = (princ, terms, intr) => {
         totalDebtLeft: currentValueProperty
     }
     schemaInstallmentDetail.push(monthlySchema);
-   baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
+    baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
     monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
     totalMonthlyInstallment = baseInstallment + monthlyInterest;
     for (let i = 1; i <= (flatInterestYear * 12); ++i) {
@@ -143,8 +134,6 @@ const countPMT = (princ, terms, intr) => {
         let totalMain = i <= longInstalmentMix ?  countPMT(currentValueProperty, longMonthInstalemnt, floatInterest) - floatInterest/12 * finalScheme / 100 : countPMT(mixCurrentValue, longResMinus, sukuBungaTahun) - sukuBungaTahun/12 * finalScheme / 100
         totalDebtLeft = totalDebtLeft - totalMain;
          
-        // console.log(schemaInstallmentDetail)
-        console.log()
         monthlySchema = {
             monthNumber: i,
             monthlyInterest: i <= longInstalmentMix ?  parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, floatInterest)) : parseFloat(countPMT(mixCurrentValue, longResMinus, sukuBungaTahun)),
@@ -152,24 +141,23 @@ const countPMT = (princ, terms, intr) => {
             totalMonthlyInstallment: parseFloat(totalMain),
             totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
         }
-  console.log(floatInterest)
         
         schemaInstallmentDetail.push(monthlySchema);
 
     }
 
-  setskemaTotalCicilan(schemaInstallmentDetail);
+  setschemaInstallmentDetail(schemaInstallmentDetail);
   setresultsDataKPR(schemaInstallmentDetail);
   }
 
 
 const setNullData = () => {
     setresultsDataKPR([])
-    setskemaTotalCicilan([])
+    setschemaInstallmentDetail([])
 }
 
   const calculateKPR = () => {
-  setNullData()
+  // setNullData()
     setTimeout(() => {
    if(sukuBunga === 'mix')  _calculateMixInterest()
     else _calculateAnuitasInterest()
@@ -186,6 +174,8 @@ const setNullData = () => {
   }
   return dataYears
  }
+
+
 
 
 
