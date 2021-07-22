@@ -18,6 +18,7 @@ import {
   CTableBody,
   CTableDataCell,
 } from '@coreui/react'
+import CurrencyInput from 'react-currency-input-field'
 
 const Dashboard = () => {
   const [interestType, setinterestType] = useState('')
@@ -44,7 +45,7 @@ const countPMT = (princ, terms, intr) => {
 
 // Annaual interest
   const _calculateAnuitasInterest = () => {
-    setNullData()
+    // setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     // Left price 500 jt - dp
@@ -92,7 +93,7 @@ const countPMT = (princ, terms, intr) => {
 
   // Mix interest
   const _calculateMixInterest = () => {
-    setNullData()
+    // setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     let currentValueProperty = harga - dpProperty
@@ -144,7 +145,7 @@ const countPMT = (princ, terms, intr) => {
 
     // serbaguna interest
   const _calculateSerbaguna = () => {
-    setNullData()
+    // setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     // Left price 500 jt - dp
@@ -198,7 +199,7 @@ const setNullData = () => {
 const calculateKPR = () => {
    if(interestType === 'mix')  _calculateMixInterest()
    else if(interestType === 'flat') _calculateAnuitasInterest()
-   else _calculateSerbaguna()
+   else if(interestType === 'serbaguna') _calculateSerbaguna()
 }
 
 // For list years
@@ -346,6 +347,7 @@ let dpProperty = dp/100 * harga;
             >
               {/* <option value="efective">Efektif</option>
               <option value="flat">Flat</option> */}
+              <option value="">Pilih Jenis Bunga</option>
               <option value="flat">Anuitas</option>
               <option value="mix">Mix</option>
               <option value="serbaguna">Serba Guna</option>
@@ -354,15 +356,26 @@ let dpProperty = dp/100 * harga;
             <b>Harga Beli Properti</b>
             <CInputGroup className="mb-3">
               <CInputGroupText id="basic-addon1">Rp</CInputGroupText>
-              <CFormControl
+              {/* <CFormControl
                 placeholder="Harga Properti"
                 aria-label="harga"
                 aria-describedby="basic-addon1"
                 type="number"
                 min="0"
-                value={harga.toLocaleString("id-ID")}
+                value={harga}
                 onChange={(value) => setharga(value.target.value)}
-              />
+              /> */}
+              <CurrencyInput
+              id="input-example"
+              name="input-name"
+              placeholder="Harga Properti"
+              defaultValue={harga}
+              decimalsLimit={2}
+              onValueChange={(value, name) => {
+                setharga(value)
+              }}
+              style={{width: '94.5%', borderColor:'#D8DBE0', borderWidth:1, borderRadius:5}}
+            />
             </CInputGroup>
             <hr/>
             <b>Uang Muka</b>
@@ -374,13 +387,24 @@ let dpProperty = dp/100 * harga;
                 aria-describedby="basic-addon1"
                 onChange={(value) => setdp(value.target.value)}
               />
-               <CFormControl
+               {/* <CFormControl
                 placeholder="Total dalam rupiah"
                 aria-label="harga"
                 aria-describedby="basic-addon1"
                 readOnly
                 value={`Rp ${dpProperty.toLocaleString("id-ID")}`}
-              />
+              /> */}
+              <CInputGroupText id="basic-addon1" style={{marginLeft:'1%', borderWidth:0}}>Rp</CInputGroupText>
+              <CurrencyInput
+              id="input-example"
+              name="input-name"
+              placeholder="Total dalam rupiah"
+              defaultValue={0}
+              value={dpProperty}
+              decimalsLimit={2}
+              readOnly
+              style={{width: '54.5%', backgroundColor:'#D8DBE0', borderWidth:0, borderRadius:1}}
+            />
             </CInputGroup>
             <hr />
             <b>Suku Bunga Floating</b>
