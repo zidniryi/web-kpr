@@ -288,10 +288,8 @@ const calculateKPR = () => {
               }     
             </CTableBody>
           </CTable>
-            <ExcelFile>
-                  <ExcelSheet data={resultsDataKPR} element={ 
-                     <CButton color="primary"> Download </CButton> 
-                  } name="Result Data KPR">
+            <ExcelFile element={ <CButton color="primary"> Download </CButton> }>
+                  <ExcelSheet data={resultsDataKPR} name="Result Data KPR">
                   <ExcelColumn label="Bulan" value="monthNumber"/>
                   <ExcelColumn label="Angsuran" value="monthlyInterest"/>
                   <ExcelColumn label="Bunga" value="baseInstallment"/>
