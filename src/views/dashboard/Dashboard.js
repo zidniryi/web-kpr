@@ -374,7 +374,7 @@ let dpProperty = dp/100 * harga;
               onValueChange={(value, name) => {
                 setharga(value)
               }}
-              style={{width: '94.5%', borderColor:'#D8DBE0', borderWidth:1, borderRadius:5}}
+              style={{width: '95.5%', borderColor:'#D8DBE0', borderWidth:1, borderRadius:4, paddingLeft:'10px'}}
             />
             </CInputGroup>
             <hr/>
@@ -407,7 +407,7 @@ let dpProperty = dp/100 * harga;
             />
             </CInputGroup>
             <hr />
-            <b>Suku Bunga Floating</b>
+            <b>Suku Bunga {interestType === 'serbaguna' ? "" : "Floating"} </b>
             <CInputGroup className="mb-3">
               <CFormControl
                 placeholder="Suku bunga"
