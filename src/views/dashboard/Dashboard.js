@@ -18,7 +18,10 @@ import {
   CTableBody,
   CTableDataCell,
 } from '@coreui/react'
+
 import CurrencyInput from 'react-currency-input-field'
+import ReactExport from "react-export-excel"
+
 
 const Dashboard = () => {
   const [interestType, setinterestType] = useState('')
@@ -28,7 +31,7 @@ const Dashboard = () => {
   const [longYear, setlongYear] = useState(0)
   const [schemaInstallmentDetail, setschemaInstallmentDetail] = useState([])
   const [resultsDataKPR, setresultsDataKPR] = useState([]);
-  // For float
+// For float
   const [floatInterest, setfloatInterest] = useState(0)
   const [floatYears, setfloatYears] = useState(0)
 
@@ -249,9 +252,13 @@ const calculateKPR = () => {
 
 
   const _renderTables = () => {
-   const maxFloat = parseFloat(1).toFixed(2)
 
-    return (
+   const maxFloat = parseFloat(1).toFixed(2)
+   const ExcelFile = ReactExport.ExcelFile
+   const ExcelSheet = ReactExport.ExcelFile.ExcelSheet
+   const ExcelColumn = ReactExport.ExcelFile.ExcelColumn
+   
+      return (
       <CCard>
         <CCardHeader component="h5">Biaya & Pajak</CCardHeader>
         <CCardBody>
@@ -276,12 +283,21 @@ const calculateKPR = () => {
                 Rp {parseFloat(data.baseInstallment.toFixed(2)).toLocaleString("id-ID")}</CTableDataCell>
                 <CTableDataCell>Rp {parseFloat(data.totalMonthlyInstallment.toFixed(2)).toLocaleString("id-ID") }</CTableDataCell>
                 <CTableDataCell>Rp { data.totalDebtLeft < maxFloat ? 0 : parseFloat(data.totalDebtLeft).toLocaleString("id-ID") }</CTableDataCell>
-              </CTableRow> 
+               </CTableRow> 
                 ))
               }     
             </CTableBody>
           </CTable>
-        </CCardBody>
+            <ExcelFile element={ <CButton color="primary"> Download </CButton> }>
+                  <ExcelSheet data={resultsDataKPR} name="Result Data KPR">
+                  <ExcelColumn label="Bulan" value="monthNumber"/>
+                  <ExcelColumn label="Angsuran" value="monthlyInterest"/>
+                  <ExcelColumn label="Bunga" value="baseInstallment"/>
+                  <ExcelColumn label="Pokok" value="totalMonthlyInstallment"/>
+                  <ExcelColumn label="Sisa Pinjaman" value="totalDebtLeft" />
+               </ExcelSheet>
+            </ExcelFile>
+         </CCardBody>
       </CCard>
     )
   }

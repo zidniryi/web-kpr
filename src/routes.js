@@ -97,7 +97,7 @@ const routes = [
   { path: '/notifications/alerts', name: 'Alerts', component: Alerts },
   { path: '/notifications/badges', name: 'Badges', component: Badges },
   { path: '/notifications/modals', name: 'Modals', component: Modals },
-  { path: '/notifications/toasts', name: 'Toasts', component: Toasts },
+  { path: '/notifications/toasts', name: 'Toasts', component: Toasts }, 
   // { path: '/login', name: 'Login', component: Login },
   // { path: '/register', name: 'Register', component: Register },
   // { path: '/404', name: '404', component: Page404 },
