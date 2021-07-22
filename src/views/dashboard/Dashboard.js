@@ -20,20 +20,18 @@ import {
 } from '@coreui/react'
 
 const Dashboard = () => {
-  const [sukuBunga, setsukuBunga] = useState('')
-  const [sukuBungaTahun, setsukuBungaTahun] = useState('')
+  const [interestType, setinterestType] = useState('')
+  const [yearlyInterestReturn, setyearlyInterestReturn] = useState('')
   const [harga, setharga] = useState(0)
   const [dp, setdp] = useState(0)
-  const [lamaTahun, setlamaTahun] = useState(0)
+  const [longYear, setlongYear] = useState(0)
   const [schemaInstallmentDetail, setschemaInstallmentDetail] = useState([])
   const [resultsDataKPR, setresultsDataKPR] = useState([]);
-
   // For float
   const [floatInterest, setfloatInterest] = useState(0)
   const [floatYears, setfloatYears] = useState(0)
 
-  
-
+// PMT Formule
 const countPMT = (princ, terms, intr) => {
    var princ = princ
    var term  = terms
@@ -44,17 +42,17 @@ const countPMT = (princ, terms, intr) => {
 
 }
 
-
+// Annaual interest
   const _calculateAnuitasInterest = () => {
     setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     // Left price 500 jt - dp
     let currentValueProperty = harga - dpProperty
-    const longMonthInstalemnt = lamaTahun * 12
-    let flatInterest = sukuBungaTahun / 12;
+    const longMonthInstalemnt = longYear * 12
+    let flatInterest = yearlyInterestReturn / 12;
   
-    let flatInterestYear = parseInt(lamaTahun);
+    let flatInterestYear = parseInt(longYear);
     
     let totalPropertyPrice = propertyPrice - dpProperty,
         monthlyInterest = 0,
@@ -70,45 +68,40 @@ const countPMT = (princ, terms, intr) => {
         totalDebtLeft: currentValueProperty
     }
   schemaInstallmentDetail.push(monthlySchema);
-   baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
+   baseInstallment = yearlyInterestReturn/12 * currentValueProperty / 100;
     monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
     totalMonthlyInstallment = baseInstallment + monthlyInterest;
     for (let i = 1; i <= (flatInterestYear * 12); ++i) {
         const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
-        let totalMain =  countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun) - sukuBungaTahun/12 * finalScheme / 100
+        let totalMain =  countPMT(currentValueProperty, longMonthInstalemnt, yearlyInterestReturn) - yearlyInterestReturn/12 * finalScheme / 100
         totalDebtLeft = totalDebtLeft - totalMain;
          
         monthlySchema = {
             monthNumber: i,
-            monthlyInterest: parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, sukuBungaTahun)),
-            baseInstallment: parseFloat(sukuBungaTahun/12 * finalScheme / 100),
+            monthlyInterest: parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, yearlyInterestReturn)),
+            baseInstallment: parseFloat(yearlyInterestReturn/12 * finalScheme / 100),
             totalMonthlyInstallment: parseFloat(totalMain),
             totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
         }
-
-        
         schemaInstallmentDetail.push(monthlySchema);
-
     }
 
   setschemaInstallmentDetail(schemaInstallmentDetail);
   setresultsDataKPR(schemaInstallmentDetail);
   }
 
-
-
+  // Mix interest
   const _calculateMixInterest = () => {
     setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     let currentValueProperty = harga - dpProperty
     const longInstalmentMix = floatYears * 12
-    const longMonthInstalemnt = lamaTahun * 12
+    const longMonthInstalemnt = longYear * 12
     const longResMinus = longMonthInstalemnt - longInstalmentMix
  
-
-    let flatInterest = sukuBungaTahun / 12;
-    let flatInterestYear = parseInt(lamaTahun);
+    let flatInterest = yearlyInterestReturn / 12;
+    let flatInterestYear = parseInt(longYear);
     
     let totalPropertyPrice = propertyPrice - dpProperty,
         monthlyInterest = 0,
@@ -124,26 +117,24 @@ const countPMT = (princ, terms, intr) => {
         totalDebtLeft: currentValueProperty
     }
     schemaInstallmentDetail.push(monthlySchema);
-    baseInstallment = sukuBungaTahun/12 * currentValueProperty / 100;
+    baseInstallment = yearlyInterestReturn/12 * currentValueProperty / 100;
     monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
     totalMonthlyInstallment = baseInstallment + monthlyInterest;
     for (let i = 1; i <= (flatInterestYear * 12); ++i) {
         const mixCurrentValue = i >= parseInt(longInstalmentMix) ? parseInt(schemaInstallmentDetail[longInstalmentMix]?.totalDebtLeft) : " "
 
         const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
-        let totalMain = i <= longInstalmentMix ?  countPMT(currentValueProperty, longMonthInstalemnt, floatInterest) - floatInterest/12 * finalScheme / 100 : countPMT(mixCurrentValue, longResMinus, sukuBungaTahun) - sukuBungaTahun/12 * finalScheme / 100
+        let totalMain = i <= longInstalmentMix ?  countPMT(currentValueProperty, longMonthInstalemnt, floatInterest) - floatInterest/12 * finalScheme / 100 : countPMT(mixCurrentValue, longResMinus, yearlyInterestReturn) - yearlyInterestReturn/12 * finalScheme / 100
         totalDebtLeft = totalDebtLeft - totalMain;
          
         monthlySchema = {
             monthNumber: i,
-            monthlyInterest: i <= longInstalmentMix ?  parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, floatInterest)) : parseFloat(countPMT(mixCurrentValue, longResMinus, sukuBungaTahun)),
-            baseInstallment: i <= longInstalmentMix ? parseFloat(floatInterest/12 * finalScheme / 100) :  parseFloat(sukuBungaTahun/12 * finalScheme / 100),
+            monthlyInterest: i <= longInstalmentMix ?  parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, floatInterest)) : parseFloat(countPMT(mixCurrentValue, longResMinus, yearlyInterestReturn)),
+            baseInstallment: i <= longInstalmentMix ? parseFloat(floatInterest/12 * finalScheme / 100) :  parseFloat(yearlyInterestReturn/12 * finalScheme / 100),
             totalMonthlyInstallment: parseFloat(totalMain),
             totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
         }
-        
         schemaInstallmentDetail.push(monthlySchema);
-
     }
 
   setschemaInstallmentDetail(schemaInstallmentDetail);
@@ -156,13 +147,12 @@ const setNullData = () => {
     setschemaInstallmentDetail([])
 }
 
-  const calculateKPR = () => {
-   if(sukuBunga === 'mix')  _calculateMixInterest()
+const calculateKPR = () => {
+   if(interestType === 'mix')  _calculateMixInterest()
     else _calculateAnuitasInterest()
 }
 
-
-
+// For list years
  const countYears = () => {
     const years = 16;
     let dataYears = []
@@ -172,13 +162,8 @@ const setNullData = () => {
   return dataYears
  }
 
-
-
-
-
-
   const _renderResultBorow = () => {
-    const interesetMontly = sukuBungaTahun/12
+    const interesetMontly = yearlyInterestReturn/12
     return (
       <CCard>
         <CCardHeader component="h5">Data Pinjaman Anda</CCardHeader>
@@ -198,12 +183,12 @@ const setNullData = () => {
               <CTableRow>
                 <CTableHeaderCell scope="row">Tenor</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{lamaTahun} Tahun ({lamaTahun*12}) Bulan</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>{longYear} Tahun ({longYear*12}) Bulan</CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Bunga</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{sukuBungaTahun}% Tahun / {interesetMontly.toFixed(2)}% Bulan</CTableDataCell>
+                <CTableDataCell style={{ textAlign: 'left' }}>{yearlyInterestReturn}% Tahun / {interesetMontly.toFixed(2)}% Bulan</CTableDataCell>
               </CTableRow>
             </CTableBody>
           </CTable>
@@ -212,70 +197,6 @@ const setNullData = () => {
     )
   }
 
-  // const _renderResultKpr = () => {
-  //   return (
-  //     <CCard>
-  //       <CCardHeader component="h5">KPR Anda</CCardHeader>
-  //       <CCardBody>
-  //         <CTable>
-  //           <CTableBody>
-  //             <CTableRow>
-  //               <CTableHeaderCell scope="row">Plafon Pinjaman</CTableHeaderCell>
-  //               <CTableDataCell>:</CTableDataCell>
-  //               <CTableDataCell style={{ textAlign: 'left' }}>Rp 400.000.000,00</CTableDataCell>
-  //             </CTableRow>
-  //             <CTableRow>
-  //               <CTableHeaderCell scope="row">Angsuran per Periode</CTableHeaderCell>
-  //               <CTableDataCell>:</CTableDataCell>
-  //               <CTableDataCell style={{ textAlign: 'left' }}>Rp 6.355.768,43</CTableDataCell>
-  //             </CTableRow>
-  //             <CTableRow>
-  //               <CTableHeaderCell scope="row">Total Periode</CTableHeaderCell>
-  //               <CTableDataCell>:</CTableDataCell>
-  //               <CTableDataCell style={{ textAlign: 'left' }}>120 bulan</CTableDataCell>
-  //             </CTableRow>
-  //           </CTableBody>
-  //         </CTable>
-  //       </CCardBody>
-  //     </CCard>
-  //   )
-  // }
-
-  // const _renderTax = () => {
-  //   return (
-  //     <CCard>
-  //       <CCardHeader component="h5">Biaya & Pajak</CCardHeader>
-  //       <CCardBody>
-  //         <CTable>
-  //           <CTableBody>
-  //             <CTableRow>
-  //               <CTableHeaderCell scope="row">
-  //                 Biaya Provisi <br /> <i>(1.5 % plafon)</i>
-  //               </CTableHeaderCell>
-  //               <CTableDataCell>:</CTableDataCell>
-  //               <CTableDataCell style={{ textAlign: 'left' }}>Rp 6.000.000,00</CTableDataCell>
-  //             </CTableRow>
-  //             <CTableRow>
-  //               <CTableHeaderCell scope="row">Biaya Appraisal</CTableHeaderCell>
-  //               <CTableDataCell>:</CTableDataCell>
-  //               <CTableDataCell style={{ textAlign: 'left' }}>Rp 500.000,00</CTableDataCell>
-  //             </CTableRow>
-  //             <CTableRow>
-  //               <CTableHeaderCell scope="row">Biaya Administrasi</CTableHeaderCell>
-  //               <CTableDataCell>:</CTableDataCell>
-  //               <CTableDataCell style={{ textAlign: 'left' }}>Rp 450.000,00</CTableDataCell>
-  //             </CTableRow>
-  //             <CTableRow>
-  //               <CTableHeaderCell scope="row">Total Biaya & Pajak</CTableHeaderCell>
-  //               <CTableDataCell>:</CTableDataCell>
-  //               <CTableDataCell style={{ textAlign: 'left' }}>Rp 48.450.000,00</CTableDataCell>
-  //             </CTableRow>
-  //           </CTableBody>
-  //         </CTable>
-  //       </CCardBody>
-  //     </CCard>
-  //   )
-  // }
 
   const _renderTables = () => {
    const maxFloat = parseFloat(1).toFixed(2)
@@ -328,7 +249,7 @@ const setNullData = () => {
   }
 
 const _renderMix = () => {
-  if(sukuBunga === 'mix'){
+  if(interestType === 'mix'){
     return(
       <Fragment>
         <hr />
@@ -360,7 +281,6 @@ const _renderMix = () => {
 }
 
 let dpProperty = dp/100 * harga;
-
   return (
     <>
       <Fragment>
@@ -373,7 +293,7 @@ let dpProperty = dp/100 * harga;
             <b>Jenis Suku Bunga</b>
             <CFormSelect
               aria-label="Default select example"
-              onChange={(value) => setsukuBunga(value.target.value)}
+              onChange={(value) => setinterestType(value.target.value)}
             >
               {/* <option value="efective">Efektif</option>
               <option value="flat">Flat</option> */}
@@ -381,15 +301,6 @@ let dpProperty = dp/100 * harga;
               <option value="mix">Mix</option>
 
             </CFormSelect>
-            {/* <hr /> */}
-            {/* <b>Jenis Subsidi</b>
-            <CFormSelect
-              aria-label="Default select example"
-              onChange={(value) => setsubsidi(value.target.value)}
-            >
-              <option value="non-subsidi">Subsidi</option>
-              <option value="subsidi">Non Subsidi</option>
-            </CFormSelect> */}
             <hr />
             <b>Harga Beli Properti</b>
             <CInputGroup className="mb-3">
@@ -428,7 +339,7 @@ let dpProperty = dp/100 * harga;
                 placeholder="Suku bunga"
                 aria-label="Recipient's username"
                 aria-describedby="basic-addon2"
-                onChange={(value) => setsukuBungaTahun(value.target.value)}
+                onChange={(value) => setyearlyInterestReturn(value.target.value)}
               />
               <CInputGroupText id="basic-addon2">% per tahun</CInputGroupText>
             </CInputGroup>
@@ -436,7 +347,7 @@ let dpProperty = dp/100 * harga;
             <b>Lama Pinjaman</b>
             <CFormSelect
               aria-label="Default select example"
-              onChange={(value) => setlamaTahun(value.target.value)}
+              onChange={(value) => setlongYear(value.target.value)}
             >
               {countYears().map((year, index) => (
                <option value={year} key={index}>{year} Tahun</option>
