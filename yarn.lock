@@ -9375,6 +9375,11 @@ react-app-polyfill@^2.0.0:
     regenerator-runtime "^0.13.7"
     whatwg-fetch "^3.4.1"
 
+react-currency-input-field@^3.4.2:
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/react-currency-input-field/-/react-currency-input-field-3.4.2.tgz#9fa6b508f7768b1d90931a24907e6521f83ad608"
+  integrity sha512-NS7hMzqduEglbXcYSSqTqEwYSnMB5CFWA63jScq2VM9WB01jGgwMLNpkXGYGTAzFiyoi8QDck55GNsWf+bnV0A==
+
 react-dev-utils@^11.0.3:
   version "11.0.4"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.4.tgz#a7ccb60257a1ca2e0efe7a83e38e6700d17aa37a"
