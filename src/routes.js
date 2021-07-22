@@ -54,6 +54,7 @@ const Widgets = React.lazy(() => import('./views/components/widgets/Widgets'))
 
 const Charts = React.lazy(() => import('./views/components/charts/Charts'))
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const ExportExcel  = React.lazy(() => import('./views/excel/ExportExcel'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -98,6 +99,7 @@ const routes = [
   { path: '/notifications/badges', name: 'Badges', component: Badges },
   { path: '/notifications/modals', name: 'Modals', component: Modals },
   { path: '/notifications/toasts', name: 'Toasts', component: Toasts },
+  { path: '/excel', name: 'ExportExcel', component: ExportExcel },
   // { path: '/login', name: 'Login', component: Login },
   // { path: '/register', name: 'Register', component: Register },
   // { path: '/404', name: '404', component: Page404 },
