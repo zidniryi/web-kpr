@@ -142,6 +142,54 @@ const countPMT = (princ, terms, intr) => {
   }
 
 
+    // serbaguna interest
+  const _calculateSerbaguna = () => {
+    setNullData()
+    let propertyPrice = harga;
+    let dpProperty = dp/100 * harga;
+    // Left price 500 jt - dp
+    const longMonthInstalemnt = longYear * 12
+    let flatInterest = yearlyInterestReturn / 12;
+  
+    let flatInterestYear = parseInt(longYear);
+    
+    let totalPropertyPrice = propertyPrice - dpProperty,
+        monthlyInterest = 0,
+        baseInstallment = 0,
+        totalMonthlyInstallment = 0,
+        totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+
+    let monthlySchema = {
+        monthNumber: 0,
+        monthlyInterest: 0,
+        baseInstallment: 0,
+        totalMonthlyInstallment: 0,
+        totalDebtLeft: harga
+    }
+  schemaInstallmentDetail.push(monthlySchema);
+   baseInstallment = yearlyInterestReturn/12 * harga / 100;
+    monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
+    totalMonthlyInstallment = baseInstallment + monthlyInterest;
+    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
+        const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
+        let totalMain =  countPMT(harga, longMonthInstalemnt, yearlyInterestReturn) - yearlyInterestReturn/12 * finalScheme / 100
+        totalDebtLeft = totalDebtLeft - totalMain;
+         
+        monthlySchema = {
+            monthNumber: i,
+            monthlyInterest: parseFloat(countPMT(harga, longMonthInstalemnt, yearlyInterestReturn)),
+            baseInstallment: parseFloat(yearlyInterestReturn/12 * harga / 100),
+            totalMonthlyInstallment: parseFloat(totalMain),
+            totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
+        }
+        schemaInstallmentDetail.push(monthlySchema);
+    }
+
+  setschemaInstallmentDetail(schemaInstallmentDetail);
+  setresultsDataKPR(schemaInstallmentDetail);
+  }
+
+
 const setNullData = () => {
     setresultsDataKPR([])
     setschemaInstallmentDetail([])
@@ -149,7 +197,8 @@ const setNullData = () => {
 
 const calculateKPR = () => {
    if(interestType === 'mix')  _calculateMixInterest()
-    else _calculateAnuitasInterest()
+   else if(interestType === 'flat') _calculateAnuitasInterest()
+   else _calculateSerbaguna()
 }
 
 // For list years
@@ -299,7 +348,7 @@ let dpProperty = dp/100 * harga;
               <option value="flat">Flat</option> */}
               <option value="flat">Anuitas</option>
               <option value="mix">Mix</option>
-
+              <option value="serbaguna">Serba Guna</option>
             </CFormSelect>
             <hr />
             <b>Harga Beli Properti</b>
@@ -309,8 +358,9 @@ let dpProperty = dp/100 * harga;
                 placeholder="Harga Properti"
                 aria-label="harga"
                 aria-describedby="basic-addon1"
-                // type="number"
-                // min="0"
+                type="number"
+                min="0"
+                value={harga.toLocaleString("id-ID")}
                 onChange={(value) => setharga(value.target.value)}
               />
             </CInputGroup>
@@ -329,7 +379,7 @@ let dpProperty = dp/100 * harga;
                 aria-label="harga"
                 aria-describedby="basic-addon1"
                 readOnly
-                value={`Rp ${dpProperty}`}
+                value={`Rp ${dpProperty.toLocaleString("id-ID")}`}
               />
             </CInputGroup>
             <hr />
