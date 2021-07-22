@@ -157,11 +157,8 @@ const setNullData = () => {
 }
 
   const calculateKPR = () => {
-  // setNullData()
-    setTimeout(() => {
    if(sukuBunga === 'mix')  _calculateMixInterest()
     else _calculateAnuitasInterest()
-  }, 1000);
 }
 
 
@@ -335,7 +332,7 @@ const _renderMix = () => {
     return(
       <Fragment>
         <hr />
-            <b>Suku Bunga Per Tahun (Float)</b>
+            <b>Suku Bunga FIX</b>
             <CInputGroup className="mb-3">
               <CFormControl
                 placeholder="Suku bunga flat"
@@ -346,7 +343,7 @@ const _renderMix = () => {
               <CInputGroupText id="basic-addon2">% per tahun</CInputGroupText>
             </CInputGroup>
             <hr />
-            <b>Lama Pinjaman (Float)</b>
+            <b>Masa Kredit FIX</b>
             <CFormSelect
               aria-label="Default select example"
               onChange={(value) => setfloatYears(value.target.value)}
@@ -425,7 +422,7 @@ let dpProperty = dp/100 * harga;
               />
             </CInputGroup>
             <hr />
-            <b>Suku Bunga Per Tahun</b>
+            <b>Suku Bunga Floating</b>
             <CInputGroup className="mb-3">
               <CFormControl
                 placeholder="Suku bunga"
