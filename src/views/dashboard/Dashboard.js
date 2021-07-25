@@ -18,10 +18,7 @@ import {
   CTableBody,
   CTableDataCell,
 } from '@coreui/react'
-
-import CurrencyInput from 'react-currency-input-field'
 import ReactExport from "react-export-excel"
-
 
 const Dashboard = () => {
   const [interestType, setinterestType] = useState('')
@@ -48,7 +45,7 @@ const countPMT = (princ, terms, intr) => {
 
 // Annaual interest
   const _calculateAnuitasInterest = () => {
-    // setNullData()
+    setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     // Left price 500 jt - dp
@@ -96,7 +93,7 @@ const countPMT = (princ, terms, intr) => {
 
   // Mix interest
   const _calculateMixInterest = () => {
-    // setNullData()
+    setNullData()
     let propertyPrice = harga;
     let dpProperty = dp/100 * harga;
     let currentValueProperty = harga - dpProperty
@@ -146,54 +143,6 @@ const countPMT = (princ, terms, intr) => {
   }
 
 
-    // serbaguna interest
-  const _calculateSerbaguna = () => {
-    // setNullData()
-    let propertyPrice = harga;
-    let dpProperty = dp/100 * harga;
-    // Left price 500 jt - dp
-    const longMonthInstalemnt = longYear * 12
-    let flatInterest = yearlyInterestReturn / 12;
-  
-    let flatInterestYear = parseInt(longYear);
-    
-    let totalPropertyPrice = propertyPrice - dpProperty,
-        monthlyInterest = 0,
-        baseInstallment = 0,
-        totalMonthlyInstallment = 0,
-        totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
-
-    let monthlySchema = {
-        monthNumber: 0,
-        monthlyInterest: 0,
-        baseInstallment: 0,
-        totalMonthlyInstallment: 0,
-        totalDebtLeft: harga
-    }
-  schemaInstallmentDetail.push(monthlySchema);
-   baseInstallment = yearlyInterestReturn/12 * harga / 100;
-    monthlyInterest = totalDebtLeft * (flatInterest/12) / 100;
-    totalMonthlyInstallment = baseInstallment + monthlyInterest;
-    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
-        const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
-        let totalMain =  countPMT(harga, longMonthInstalemnt, yearlyInterestReturn) - yearlyInterestReturn/12 * finalScheme / 100
-        totalDebtLeft = totalDebtLeft - totalMain;
-         
-        monthlySchema = {
-            monthNumber: i,
-            monthlyInterest: parseFloat(countPMT(harga, longMonthInstalemnt, yearlyInterestReturn)),
-            baseInstallment: parseFloat(yearlyInterestReturn/12 * harga / 100),
-            totalMonthlyInstallment: parseFloat(totalMain),
-            totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
-        }
-        schemaInstallmentDetail.push(monthlySchema);
-    }
-
-  setschemaInstallmentDetail(schemaInstallmentDetail);
-  setresultsDataKPR(schemaInstallmentDetail);
-  }
-
-
 const setNullData = () => {
     setresultsDataKPR([])
     setschemaInstallmentDetail([])
@@ -201,8 +150,7 @@ const setNullData = () => {
 
 const calculateKPR = () => {
    if(interestType === 'mix')  _calculateMixInterest()
-   else if(interestType === 'flat') _calculateAnuitasInterest()
-   else if(interestType === 'serbaguna') _calculateSerbaguna()
+   else _calculateAnuitasInterest()
 }
 
 // For list years
@@ -288,8 +236,8 @@ const calculateKPR = () => {
               }     
             </CTableBody>
           </CTable>
-            <ExcelFile element={ <CButton color="primary"> Download </CButton> }>
-                  <ExcelSheet data={resultsDataKPR} name="Result Data KPR">
+            <ExcelFile>
+               <ExcelSheet data={resultsDataKPR} name="Result Data KPR">
                   <ExcelColumn label="Bulan" value="monthNumber"/>
                   <ExcelColumn label="Angsuran" value="monthlyInterest"/>
                   <ExcelColumn label="Bunga" value="baseInstallment"/>
@@ -363,35 +311,22 @@ let dpProperty = dp/100 * harga;
             >
               {/* <option value="efective">Efektif</option>
               <option value="flat">Flat</option> */}
-              <option value="">Pilih Jenis Bunga</option>
               <option value="flat">Anuitas</option>
               <option value="mix">Mix</option>
-              <option value="serbaguna">Serba Guna</option>
+
             </CFormSelect>
             <hr />
             <b>Harga Beli Properti</b>
             <CInputGroup className="mb-3">
               <CInputGroupText id="basic-addon1">Rp</CInputGroupText>
-              {/* <CFormControl
+              <CFormControl
                 placeholder="Harga Properti"
                 aria-label="harga"
                 aria-describedby="basic-addon1"
-                type="number"
-                min="0"
-                value={harga}
+                // type="number"
+                // min="0"
                 onChange={(value) => setharga(value.target.value)}
-              /> */}
-              <CurrencyInput
-              id="input-example"
-              name="input-name"
-              placeholder="Harga Properti"
-              defaultValue={harga}
-              decimalsLimit={2}
-              onValueChange={(value, name) => {
-                setharga(value)
-              }}
-              style={{width: '94.5%', borderColor:'#D8DBE0', borderWidth:1, borderRadius:5}}
-            />
+              />
             </CInputGroup>
             <hr/>
             <b>Uang Muka</b>
@@ -403,24 +338,13 @@ let dpProperty = dp/100 * harga;
                 aria-describedby="basic-addon1"
                 onChange={(value) => setdp(value.target.value)}
               />
-               {/* <CFormControl
+               <CFormControl
                 placeholder="Total dalam rupiah"
                 aria-label="harga"
                 aria-describedby="basic-addon1"
                 readOnly
-                value={`Rp ${dpProperty.toLocaleString("id-ID")}`}
-              /> */}
-              <CInputGroupText id="basic-addon1" style={{marginLeft:'1%', borderWidth:0}}>Rp</CInputGroupText>
-              <CurrencyInput
-              id="input-example"
-              name="input-name"
-              placeholder="Total dalam rupiah"
-              defaultValue={0}
-              value={dpProperty}
-              decimalsLimit={2}
-              readOnly
-              style={{width: '54.5%', backgroundColor:'#D8DBE0', borderWidth:0, borderRadius:1}}
-            />
+                value={`Rp ${dpProperty}`}
+              />
             </CInputGroup>
             <hr />
             <b>Suku Bunga Floating</b>
