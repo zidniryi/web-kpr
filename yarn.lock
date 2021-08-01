@@ -5433,6 +5433,11 @@ file-loader@6.1.1:
     loader-utils "^2.0.0"
     schema-utils "^3.0.0"
 
+file-saver@1.3.3:
+  version "1.3.3"
+  resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-1.3.3.tgz#cdd4c44d3aa264eac2f68ec165bc791c34af1232"
+  integrity sha1-zdTETTqiZOrC9o7BZbx5HDSvEjI=
+
 file-saver@1.3.8:
   version "1.3.8"
   resolved "https://registry.yarnpkg.com/file-saver/-/file-saver-1.3.8.tgz#e68a30c7cb044e2fb362b428469feb291c2e09d8"
@@ -9702,6 +9707,14 @@ react-currency-input-field@^3.4.2:
   resolved "https://registry.yarnpkg.com/react-currency-input-field/-/react-currency-input-field-3.4.2.tgz#9fa6b508f7768b1d90931a24907e6521f83ad608"
   integrity sha512-NS7hMzqduEglbXcYSSqTqEwYSnMB5CFWA63jScq2VM9WB01jGgwMLNpkXGYGTAzFiyoi8QDck55GNsWf+bnV0A==
 
+react-data-export@^0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/react-data-export/-/react-data-export-0.6.0.tgz#eb6ff6e3fde5deb5d5faebda8287ecc969dd1f2d"
+  integrity sha512-S302J/m5UGdizl337LIq6DyZvWTHuxxS+L2sYw2BvAEVmPPrbaEvU2SYlijPUubsbOi07EHx7mTstItPfONHdw==
+  dependencies:
+    file-saver "1.3.3"
+    tempa-xlsx "0.0.1"
+
 react-dev-utils@^11.0.3:
   version "11.0.4"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.4.tgz#a7ccb60257a1ca2e0efe7a83e38e6700d17aa37a"
@@ -11248,6 +11261,19 @@ temp-dir@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/temp-dir/-/temp-dir-1.0.0.tgz#0a7c0ea26d3a39afa7e0ebea9c1fc0bc4daa011d"
   integrity sha1-CnwOom06Oa+n4OvqnB/AvE2qAR0=
+
+tempa-xlsx@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/tempa-xlsx/-/tempa-xlsx-0.0.1.tgz#6400118190653c32372f80b92588031b203d7bef"
+  integrity sha512-rGIrFV2ZuuvSzucx+Nn2A8ndP77NyruJsEOlfXdnGVco6LmBBJfs9r5Re3E+ffnXNh6H5PonzsO3YVF4lv8TGg==
+  dependencies:
+    adler-32 ""
+    cfb ">=0.10.0"
+    codepage "~1.3.6"
+    commander ""
+    crc-32 ""
+    jszip "2.4.0"
+    ssf "~0.8.1"
 
 tempy@^0.3.0:
   version "0.3.0"

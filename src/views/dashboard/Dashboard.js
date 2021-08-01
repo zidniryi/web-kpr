@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import '@coreui/react'
 import {
   CButton,
@@ -20,9 +20,9 @@ import {
 } from '@coreui/react'
 
 import CurrencyInput from 'react-currency-input-field'
-import ReactExport from "react-export-excel"
+import ReactExport from 'react-data-export'
 import PdfDoc from './pdfDoc'
-import { PDFDownloadLink } from "@react-pdf/renderer";
+import { PDFDownloadLink } from '@react-pdf/renderer'
 
 const Dashboard = () => {
   const [interestType, setinterestType] = useState('')
@@ -32,184 +32,242 @@ const Dashboard = () => {
   const [longYear, setlongYear] = useState(0)
   const [asurance, setAsurance] = useState(0)
   const [schemaInstallmentDetail, setschemaInstallmentDetail] = useState([])
-  const [resultsDataKPR, setresultsDataKPR] = useState([]);
+  const [resultsDataKPR, setResultsDataKPR] = useState([])
+  const [adminCost, setAdminCost] = useState(0)
   // For float
   const [floatInterest, setfloatInterest] = useState(0)
   const [floatYears, setfloatYears] = useState(0)
+
+  const adminCostValue = (adminCost * (harga - (dp / 100) * harga)) / 100
+  const dpProperty = (dp / 100) * harga
+
+  const [rincianPinjaman, setRincianPinjaman] = useState({
+    hargaProperty: 0,
+    uangMuka: 0,
+    tenor: 0,
+    bunga: 0,
+    biayaAsuransi: 0,
+    biayaAdmin: 0,
+    angsuranPerbulan: 0,
+    pembayaranPertama: 0,
+  })
+
+  const formatData = (data) => {
+    return (
+      parseFloat(data)
+        .toLocaleString('id-ID', {
+          minimumFractionDigits: 2,
+        })
+        .slice(0, -2) + '00'
+    )
+  }
 
   // PMT Formule
   const countPMT = (princ, terms, intr) => {
     var princ = princ
     var term = terms
-    var intr = intr / 1200;
-    var cicilan = princ * intr / (1 - (Math.pow(1 / (1 + intr), term)));
-    var res = parseFloat(cicilan).toFixed(2);
+    var intr = intr / 1200
+    var cicilan = (princ * intr) / (1 - Math.pow(1 / (1 + intr), term))
+    var res = parseFloat(cicilan).toFixed(2)
     return res
-
   }
 
   // Annaual interest
   const _calculateAnuitasInterest = () => {
-    // setNullData()
-    let propertyPrice = harga;
-    let dpProperty = dp / 100 * harga;
+    schemaInstallmentDetail.splice(0, schemaInstallmentDetail.length)
+    let propertyPrice = harga
+    let dpProperty = (dp / 100) * harga
     // Left price 500 jt - dp
     let currentValueProperty = harga - dpProperty
     const longMonthInstalemnt = longYear * 12
-    let flatInterest = yearlyInterestReturn / 12;
+    let flatInterest = yearlyInterestReturn / 12
 
-    let flatInterestYear = parseInt(longYear);
+    let flatInterestYear = parseInt(longYear)
 
     let totalPropertyPrice = propertyPrice - dpProperty,
       monthlyInterest = 0,
       baseInstallment = 0,
       totalMonthlyInstallment = 0,
-      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment
 
     let monthlySchema = {
       monthNumber: 0,
       monthlyInterest: 0,
       baseInstallment: 0,
       totalMonthlyInstallment: 0,
-      totalDebtLeft: currentValueProperty
+      totalDebtLeft: currentValueProperty,
     }
-    schemaInstallmentDetail.push(monthlySchema);
-    baseInstallment = yearlyInterestReturn / 12 * currentValueProperty / 100;
-    monthlyInterest = totalDebtLeft * (flatInterest / 12) / 100;
-    totalMonthlyInstallment = baseInstallment + monthlyInterest;
-    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
+    schemaInstallmentDetail.push(monthlySchema)
+    baseInstallment = ((yearlyInterestReturn / 12) * currentValueProperty) / 100
+    monthlyInterest = (totalDebtLeft * (flatInterest / 12)) / 100
+    totalMonthlyInstallment = baseInstallment + monthlyInterest
+    for (let i = 1; i <= flatInterestYear * 12; ++i) {
       const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
-      let totalMain = countPMT(currentValueProperty, longMonthInstalemnt, yearlyInterestReturn) - yearlyInterestReturn / 12 * finalScheme / 100
-      totalDebtLeft = totalDebtLeft - totalMain;
+      let totalMain =
+        countPMT(currentValueProperty, longMonthInstalemnt, yearlyInterestReturn) -
+        ((yearlyInterestReturn / 12) * finalScheme) / 100
+      totalDebtLeft = totalDebtLeft - totalMain
 
       monthlySchema = {
         monthNumber: i,
-        monthlyInterest: parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, yearlyInterestReturn)),
-        baseInstallment: parseFloat(yearlyInterestReturn / 12 * finalScheme / 100),
+        monthlyInterest: parseFloat(
+          countPMT(currentValueProperty, longMonthInstalemnt, yearlyInterestReturn),
+        ),
+        baseInstallment: parseFloat(((yearlyInterestReturn / 12) * finalScheme) / 100),
         totalMonthlyInstallment: parseFloat(totalMain),
-        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
+        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2),
       }
-      schemaInstallmentDetail.push(monthlySchema);
+      schemaInstallmentDetail.push(monthlySchema)
     }
-
-    setschemaInstallmentDetail(schemaInstallmentDetail);
-    setresultsDataKPR(schemaInstallmentDetail);
+    setData()
   }
 
   // Mix interest
   const _calculateMixInterest = () => {
-    // setNullData()
-    let propertyPrice = harga;
-    let dpProperty = dp / 100 * harga;
+    schemaInstallmentDetail.splice(0, schemaInstallmentDetail.length)
+    let propertyPrice = harga
+    let dpProperty = (dp / 100) * harga
     let currentValueProperty = harga - dpProperty
     const longInstalmentMix = floatYears * 12
     const longMonthInstalemnt = longYear * 12
     const longResMinus = longMonthInstalemnt - longInstalmentMix
 
-    let flatInterest = yearlyInterestReturn / 12;
-    let flatInterestYear = parseInt(longYear);
+    let flatInterest = yearlyInterestReturn / 12
+    let flatInterestYear = parseInt(longYear)
 
     let totalPropertyPrice = propertyPrice - dpProperty,
       monthlyInterest = 0,
       baseInstallment = 0,
       totalMonthlyInstallment = 0,
-      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment
 
     let monthlySchema = {
       monthNumber: 0,
       monthlyInterest: 0,
       baseInstallment: 0,
       totalMonthlyInstallment: 0,
-      totalDebtLeft: currentValueProperty
+      totalDebtLeft: currentValueProperty,
     }
     schemaInstallmentDetail.push(monthlySchema)
-    baseInstallment = yearlyInterestReturn / 12 * currentValueProperty / 100;
-    monthlyInterest = totalDebtLeft * (flatInterest / 12) / 100;
-    totalMonthlyInstallment = baseInstallment + monthlyInterest;
-    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
-      const mixCurrentValue = i >= parseInt(longInstalmentMix) ? parseInt(schemaInstallmentDetail[longInstalmentMix]?.totalDebtLeft) : " "
+    baseInstallment = ((yearlyInterestReturn / 12) * currentValueProperty) / 100
+    monthlyInterest = (totalDebtLeft * (flatInterest / 12)) / 100
+    totalMonthlyInstallment = baseInstallment + monthlyInterest
+    for (let i = 1; i <= flatInterestYear * 12; ++i) {
+      const mixCurrentValue =
+        i >= parseInt(longInstalmentMix)
+          ? parseInt(schemaInstallmentDetail[longInstalmentMix]?.totalDebtLeft)
+          : ' '
 
       const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
-      let totalMain = i <= longInstalmentMix ? countPMT(currentValueProperty, longMonthInstalemnt, floatInterest) - floatInterest / 12 * finalScheme / 100 : countPMT(mixCurrentValue, longResMinus, yearlyInterestReturn) - yearlyInterestReturn / 12 * finalScheme / 100
-      totalDebtLeft = totalDebtLeft - totalMain;
+      let totalMain =
+        i <= longInstalmentMix
+          ? countPMT(currentValueProperty, longMonthInstalemnt, floatInterest) -
+            ((floatInterest / 12) * finalScheme) / 100
+          : countPMT(mixCurrentValue, longResMinus, yearlyInterestReturn) -
+            ((yearlyInterestReturn / 12) * finalScheme) / 100
+      totalDebtLeft = totalDebtLeft - totalMain
 
       monthlySchema = {
         monthNumber: i,
-        monthlyInterest: i <= longInstalmentMix ? parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, floatInterest)) : parseFloat(countPMT(mixCurrentValue, longResMinus, yearlyInterestReturn)),
-        baseInstallment: i <= longInstalmentMix ? parseFloat(floatInterest / 12 * finalScheme / 100) : parseFloat(yearlyInterestReturn / 12 * finalScheme / 100),
+        monthlyInterest:
+          i <= longInstalmentMix
+            ? parseFloat(countPMT(currentValueProperty, longMonthInstalemnt, floatInterest))
+            : parseFloat(countPMT(mixCurrentValue, longResMinus, yearlyInterestReturn)),
+        baseInstallment:
+          i <= longInstalmentMix
+            ? parseFloat(((floatInterest / 12) * finalScheme) / 100)
+            : parseFloat(((yearlyInterestReturn / 12) * finalScheme) / 100),
         totalMonthlyInstallment: parseFloat(totalMain),
-        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
+        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2),
       }
-      schemaInstallmentDetail.push(monthlySchema);
+      schemaInstallmentDetail.push(monthlySchema)
     }
-
-    setschemaInstallmentDetail(schemaInstallmentDetail);
-    setresultsDataKPR(schemaInstallmentDetail);
+    setData()
   }
-
 
   // serbaguna interest
   const _calculateSerbaguna = () => {
-    // setNullData()
-    let propertyPrice = harga;
-    let dpProperty = dp / 100 * harga;
+    schemaInstallmentDetail.splice(0, schemaInstallmentDetail.length)
+    let propertyPrice = harga
+    let dpProperty = (dp / 100) * harga
     // Left price 500 jt - dp
     const longMonthInstalemnt = longYear * 12
-    let flatInterest = yearlyInterestReturn / 12;
+    let flatInterest = yearlyInterestReturn / 12
 
-    let flatInterestYear = parseInt(longYear);
+    let flatInterestYear = parseInt(longYear)
 
     let totalPropertyPrice = propertyPrice - dpProperty,
       monthlyInterest = 0,
       baseInstallment = 0,
       totalMonthlyInstallment = 0,
-      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment
 
     let monthlySchema = {
       monthNumber: 0,
       monthlyInterest: 0,
       baseInstallment: 0,
       totalMonthlyInstallment: 0,
-      totalDebtLeft: harga
+      totalDebtLeft: harga,
     }
-    schemaInstallmentDetail.push(monthlySchema);
-    baseInstallment = yearlyInterestReturn / 12 * harga / 100;
-    monthlyInterest = totalDebtLeft * (flatInterest / 12) / 100;
-    totalMonthlyInstallment = baseInstallment + monthlyInterest;
-    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
+
+    schemaInstallmentDetail.push(monthlySchema)
+    baseInstallment = ((yearlyInterestReturn / 12) * harga) / 100
+    monthlyInterest = (totalDebtLeft * (flatInterest / 12)) / 100
+    totalMonthlyInstallment = baseInstallment + monthlyInterest
+    for (let i = 1; i <= flatInterestYear * 12; ++i) {
       const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
-      let totalMain = countPMT(harga, longMonthInstalemnt, yearlyInterestReturn) - yearlyInterestReturn / 12 * finalScheme / 100
-      totalDebtLeft = totalDebtLeft - totalMain;
+      let totalMain =
+        countPMT(harga, longMonthInstalemnt, yearlyInterestReturn) -
+        ((yearlyInterestReturn / 12) * finalScheme) / 100
+      totalDebtLeft = totalDebtLeft - totalMain
 
       monthlySchema = {
         monthNumber: i,
         monthlyInterest: parseFloat(countPMT(harga, longMonthInstalemnt, yearlyInterestReturn)),
-        baseInstallment: parseFloat(yearlyInterestReturn / 12 * harga / 100),
+        baseInstallment: parseFloat(((yearlyInterestReturn / 12) * harga) / 100),
         totalMonthlyInstallment: parseFloat(totalMain),
-        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
+        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2),
       }
-      schemaInstallmentDetail.push(monthlySchema);
+      schemaInstallmentDetail.push(monthlySchema)
     }
-
-    setschemaInstallmentDetail(schemaInstallmentDetail);
-    setresultsDataKPR(schemaInstallmentDetail);
-  }
-
-
-  const setNullData = () => {
-    setresultsDataKPR([])
-    setschemaInstallmentDetail([])
+    setData()
   }
 
   const calculateKPR = () => {
     if (interestType === 'mix') _calculateMixInterest()
     else if (interestType === 'flat') _calculateAnuitasInterest()
     else if (interestType === 'serbaguna') _calculateSerbaguna()
+
+    const interesetMontly = yearlyInterestReturn / 12
+    const monthlyInstallment = resultsDataKPR.length > 0 ? resultsDataKPR[1].monthlyInterest : 0
+    const firstPayment =
+      parseFloat(asurance) + parseFloat(adminCost) + parseFloat(monthlyInstallment.toFixed(2))
+    setRincianPinjaman({
+      ...rincianPinjaman,
+      angsuranPerbulan: parseFloat(monthlyInstallment.toFixed(2)).toLocaleString('id-ID'),
+      biayaAdmin: parseFloat(adminCostValue).toLocaleString('id-ID'),
+      biayaAsuransi: parseFloat(asurance).toLocaleString('id-ID'),
+      bunga: `${yearlyInterestReturn} % Tahun / ${interesetMontly.toFixed(2)} % Bulan`,
+      hargaProperty: parseFloat(harga).toLocaleString('id-ID'),
+      pembayaranPertama: firstPayment.toLocaleString('id-ID'),
+      tenor: `${longYear} Tahun / ${longYear * 12} Bulan`,
+      uangMuka: parseFloat((dp / 100) * harga).toLocaleString('id-ID'),
+    })
+  }
+
+  const setData = () => {
+    if (resultsDataKPR.length === 0) {
+      setschemaInstallmentDetail(schemaInstallmentDetail)
+      setResultsDataKPR(schemaInstallmentDetail)
+    } else {
+      setschemaInstallmentDetail([...schemaInstallmentDetail])
+      setResultsDataKPR(schemaInstallmentDetail)
+    }
   }
 
   // For list years
   const countYears = () => {
-    const years = 16;
+    const years = 16
     let dataYears = []
     for (var i = 0; i < years; i++) {
       dataYears.push(i)
@@ -218,12 +276,6 @@ const Dashboard = () => {
   }
 
   const _renderResultBorow = () => {
-
-    const interesetMontly = yearlyInterestReturn / 12
-    const monthlyInstallment = resultsDataKPR[1].monthlyInterest
-    const adminCost = 5 * (harga - (dp / 100 * harga)) / 100
-    const firstPayment = parseFloat(asurance) + parseFloat(adminCost) + parseFloat(monthlyInstallment.toFixed(2))
-    
     return (
       <CCard>
         <CCardHeader component="h5">Rincian Pinjaman</CCardHeader>
@@ -233,45 +285,91 @@ const Dashboard = () => {
               <CTableRow>
                 <CTableHeaderCell scope="row">Harga Properti</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>Rp {parseFloat(harga).toLocaleString("id-ID")}</CTableDataCell>
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  Rp {rincianPinjaman.hargaProperty}
+                </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Uang Muka</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>Rp {parseFloat(dp / 100 * harga).toLocaleString("id-ID")} </CTableDataCell>
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  Rp {rincianPinjaman.uangMuka}{' '}
+                </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Tenor</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{longYear} Tahun / {longYear * 12} Bulan</CTableDataCell>
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  {rincianPinjaman.tenor}
+                </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Bunga</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>{yearlyInterestReturn}% Tahun / {interesetMontly.toFixed(2)}% Bulan</CTableDataCell>
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  {rincianPinjaman.bunga}
+                </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Biaya Asuransi</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}> Rp {parseFloat(asurance).toLocaleString("id-ID")} </CTableDataCell>
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  {' '}
+                  Rp {rincianPinjaman.biayaAsuransi}{' '}
+                </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Biaya Admin</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}> Rp {parseFloat(adminCost).toLocaleString("id-ID")} </CTableDataCell>
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  {' '}
+                  Rp {rincianPinjaman.biayaAdmin}{' '}
+                </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Angsuran Perbulan</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>
-                  Rp {parseFloat(monthlyInstallment.toFixed(2)).toLocaleString("id-ID")}
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  Rp {rincianPinjaman.angsuranPerbulan}
                 </CTableDataCell>
               </CTableRow>
               <CTableRow>
                 <CTableHeaderCell scope="row">Pembayaran Pertama</CTableHeaderCell>
                 <CTableDataCell>:</CTableDataCell>
-                <CTableDataCell style={{ textAlign: 'left' }}>
-                  Rp {(firstPayment).toLocaleString("id-ID")}
+                <CTableDataCell
+                  style={{
+                    textAlign: 'left',
+                  }}
+                >
+                  Rp {rincianPinjaman.pembayaranPertama}
                 </CTableDataCell>
               </CTableRow>
             </CTableBody>
@@ -280,81 +378,139 @@ const Dashboard = () => {
       </CCard>
     )
   }
-
 
   const _renderTables = () => {
 
     const maxFloat = parseFloat(1).toFixed(2)
     const ExcelFile = ReactExport.ExcelFile
     const ExcelSheet = ReactExport.ExcelFile.ExcelSheet
-    const ExcelColumn = ReactExport.ExcelFile.ExcelColumn
 
-    const formatData = (data) => {
-      return parseFloat(data).toLocaleString("id-ID", { minimumFractionDigits: 2 }).slice(0, -2) + "00"
-    }
+    const dataSet = [
+      {
+        ySteps: 1,
+        columns: [{ title: 'Rincian Pinjaman' }],
+        data: [],
+      },
+      {
+        ySteps: 1,
+        columns: [
+          { title: 'Name', width: { wpx: 150 } },
+          { title: 'Value', width: { wpx: 150 } },
+        ],
+        data: [
+          ['Harga Property', rincianPinjaman.hargaProperty],
+          ['Uang Muka', rincianPinjaman.uangMuka],
+          ['Tenor', rincianPinjaman.tenor],
+          ['Bunga', rincianPinjaman.bunga],
+          ['BiayaAsuransi', rincianPinjaman.biayaAsuransi],
+          ['Biaya Admin', rincianPinjaman.biayaAdmin],
+          ['Angsuran Perbulan', rincianPinjaman.angsuranPerbulan],
+          ['Pembayaran Pertama', rincianPinjaman.pembayaranPertama],
+        ],
+      },
+      {
+        ySteps: 3,
+        columns: [{ title: 'Rincian Angsuran' }],
+        data: [],
+      },
+      {
+        ySteps: 1,
+        columns: [
+          { title: 'Bulan', width: { wpx: 150 } },
+          { title: 'Angsuran', width: { wpx: 150 } },
+          { title: 'Bunga', width: { wpx: 150 } },
+          { title: 'Pokok', width: { wpx: 150 } },
+          { title: 'Sisa Pinjaman', width: { wpx: 150 } },
+        ],
+        data: resultsDataKPR.map((data) => {
+          return [
+            data.monthNumber.toString(),
+            formatData(data.monthlyInterest.toFixed(2)),
+            formatData(data.baseInstallment.toFixed(2)),
+            formatData(data.totalMonthlyInstallment.toFixed(2)),
+            data.totalDebtLeft < maxFloat
+              ? '0,00'
+              : parseFloat(data.totalDebtLeft)
+                  .toLocaleString('id-ID', {
+                    minimumFractionDigits: 2,
+                  })
+                  .slice(0, -2) + '00',
+          ]
+        }),
+      },
+    ]
 
     return (
       <CCard>
-        <CCardHeader component="h5">Biaya & Pajak</CCardHeader>
+        <CCardHeader component="h5">Detail Angsuran</CCardHeader>
         <CCardBody>
           <CTable bordered>
             <CTableHead>
               <CTableRow>
-                <CTableHeaderCell scope="col">Bulan	</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Angsuran	</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Bunga	</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Pokok	</CTableHeaderCell>
-                <CTableHeaderCell scope="col">Sisa pinjaman	</CTableHeaderCell>
-
+                <CTableHeaderCell scope="col">Bulan </CTableHeaderCell>
+                <CTableHeaderCell scope="col">Angsuran </CTableHeaderCell>
+                <CTableHeaderCell scope="col">Bunga </CTableHeaderCell>
+                <CTableHeaderCell scope="col">Pokok </CTableHeaderCell>
+                <CTableHeaderCell scope="col">Sisa pinjaman </CTableHeaderCell>
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {
+              {resultsDataKPR &&
                 resultsDataKPR.map((data, index) => (
                   <CTableRow key={index}>
-                    <CTableHeaderCell scope="row"><center>{data.monthNumber}</center></CTableHeaderCell>
-                    <CTableDataCell> Rp {parseFloat(data.monthlyInterest.toFixed(2)).toLocaleString("id-ID")}</CTableDataCell>
+                    <CTableHeaderCell scope="row">
+                      <center>{data.monthNumber}</center>
+                    </CTableHeaderCell>
                     <CTableDataCell>
-                      Rp {parseFloat(data.baseInstallment.toFixed(2)).toLocaleString("id-ID")}</CTableDataCell>
-                    <CTableDataCell>Rp {parseFloat(data.totalMonthlyInstallment.toFixed(2)).toLocaleString("id-ID")}</CTableDataCell>
-                    <CTableDataCell>Rp {data.totalDebtLeft < maxFloat ? 0 : parseFloat(data.totalDebtLeft).toLocaleString("id-ID")}</CTableDataCell>
+                      {' '}
+                      Rp {parseFloat(data.monthlyInterest.toFixed(2)).toLocaleString('id-ID')}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      Rp {parseFloat(data.baseInstallment.toFixed(2)).toLocaleString('id-ID')}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      Rp{' '}
+                      {parseFloat(data.totalMonthlyInstallment.toFixed(2)).toLocaleString('id-ID')}
+                    </CTableDataCell>
+                    <CTableDataCell>
+                      Rp{' '}
+                      {data.totalDebtLeft < maxFloat
+                        ? 0
+                        : parseFloat(data.totalDebtLeft).toLocaleString('id-ID')}
+                    </CTableDataCell>
                   </CTableRow>
-                ))
-              }
+                ))}
             </CTableBody>
           </CTable>
-
-          <ExcelFile filename="Biaya dan Pajak KPR" element={<CButton color="primary"> Download Excel </CButton>}>
-            <ExcelSheet data={resultsDataKPR} name="Result Data KPR">
-              <ExcelColumn label="Bulan" value={(col) => col.monthNumber} />
-              <ExcelColumn label="Angsuran" value={(col) => formatData(col.monthlyInterest.toFixed(2))} />
-              <ExcelColumn label="Bunga" value={(col) => formatData(col.baseInstallment.toFixed(2))} />
-              <ExcelColumn label="Pokok" value={(col) => formatData(col.totalMonthlyInstallment.toFixed(2))} />
-              <ExcelColumn label="Sisa Pinjaman" value={(col) => {
-                return col.totalDebtLeft < maxFloat ? "0,00" : parseFloat(col.totalDebtLeft)
-                  .toLocaleString("id-ID", { minimumFractionDigits: 2 }).slice(0, -2) + "00"
-              }} />
-            </ExcelSheet>
+          <ExcelFile
+            filename="Biaya dan Pajak KPR"
+            element={<CButton color="primary"> Download Excel </CButton>}
+          >
+            <ExcelSheet dataSet={dataSet} name="rincian pinjaman" />
           </ExcelFile>
-          {resultsDataKPR ?
-            <CButton color="info" style={{ marginLeft: 10 }} >
-              <PDFDownloadLink document={<PdfDoc data={resultsDataKPR} />}
+          {resultsDataKPR ? (
+            <CButton
+              color="info"
+              style={{
+                marginLeft: 10,
+              }}
+            >
+              <PDFDownloadLink
+                document={<PdfDoc dataInstallment={resultsDataKPR} dataLoan={rincianPinjaman} />}
                 fileName="Biaya dan Pajak KPR.pdf"
                 style={{
-                  textDecoration: "none",
-                  color: "#fff"
+                  textDecoration: 'none',
+                  color: '#fff',
                 }}
               >
-                {({ blob, url, loading, error }) =>
-                  loading ? "Loading document..." : "Download Pdf"
-                }
+                {({ loading }) => (loading ? 'Loading document...' : 'Download Pdf')}
               </PDFDownloadLink>
-            </CButton> : null}
+            </CButton>
+          ) : null}
         </CCardBody>
       </CCard>
     )
   }
-
 
   const _renderPageResult = () => {
     if (resultsDataKPR.length > 0)
@@ -389,9 +545,10 @@ const Dashboard = () => {
             onChange={(value) => setfloatYears(value.target.value)}
           >
             {countYears().map((year, index) => (
-              <option value={year} key={index}>{year} Tahun</option>
+              <option value={year} key={index}>
+                {year} Tahun
+              </option>
             ))}
-
           </CFormSelect>
           <hr />
         </Fragment>
@@ -399,7 +556,6 @@ const Dashboard = () => {
     }
   }
 
-  let dpProperty = dp / 100 * harga;
   return (
     <>
       <Fragment>
@@ -440,10 +596,15 @@ const Dashboard = () => {
                 placeholder="Harga Properti"
                 defaultValue={harga}
                 decimalsLimit={2}
-                onValueChange={(value, name) => {
+                onValueChange={(value) => {
                   setharga(value)
                 }}
-                style={{ width: '94.5%', borderColor: '#D8DBE0', borderWidth: 1, borderRadius: 5 }}
+                style={{
+                  width: '94.5%',
+                  borderColor: '#D8DBE0',
+                  borderWidth: 1,
+                  borderRadius: 5,
+                }}
               />
             </CInputGroup>
             <hr />
@@ -463,7 +624,15 @@ const Dashboard = () => {
                 readOnly
                 value={`Rp ${dpProperty.toLocaleString("id-ID")}`}
               /> */}
-              <CInputGroupText id="basic-addon1" style={{ marginLeft: '1%', borderWidth: 0 }}>Rp</CInputGroupText>
+              <CInputGroupText
+                id="basic-addon1"
+                style={{
+                  marginLeft: '1%',
+                  borderWidth: 0,
+                }}
+              >
+                Rp
+              </CInputGroupText>
               <CurrencyInput
                 id="input-example"
                 name="input-name"
@@ -472,7 +641,47 @@ const Dashboard = () => {
                 value={dpProperty}
                 decimalsLimit={2}
                 readOnly
-                style={{ width: '54.5%', backgroundColor: '#D8DBE0', borderWidth: 0, borderRadius: 1 }}
+                style={{
+                  width: '54.5%',
+                  backgroundColor: '#D8DBE0',
+                  borderWidth: 0,
+                  borderRadius: 1,
+                }}
+              />
+            </CInputGroup>
+            <hr />
+            <b>Biaya Admin</b>
+            <CInputGroup className="mb-3">
+              <CInputGroupText id="basic-addon1">%</CInputGroupText>
+              <CFormControl
+                placeholder="Dalam persen"
+                aria-label="harga"
+                aria-describedby="basic-addon1"
+                onChange={(value) => setAdminCost(value.target.value)}
+              />
+              <CInputGroupText
+                id="basic-addon1"
+                style={{
+                  marginLeft: '1%',
+                  borderWidth: 0,
+                }}
+              >
+                Rp
+              </CInputGroupText>
+              <CurrencyInput
+                id="input-example"
+                name="input-name"
+                placeholder="Total dalam rupiah"
+                defaultValue={0}
+                value={adminCostValue}
+                decimalsLimit={2}
+                readOnly
+                style={{
+                  width: '54.5%',
+                  backgroundColor: '#D8DBE0',
+                  borderWidth: 0,
+                  borderRadius: 1,
+                }}
               />
             </CInputGroup>
             <hr />
@@ -493,9 +702,10 @@ const Dashboard = () => {
               onChange={(value) => setlongYear(value.target.value)}
             >
               {countYears().map((year, index) => (
-                <option value={year} key={index}>{year} Tahun</option>
+                <option value={year} key={index}>
+                  {year} Tahun
+                </option>
               ))}
-
             </CFormSelect>
             <hr />
             <b>Asuransi</b>
@@ -507,19 +717,21 @@ const Dashboard = () => {
                 placeholder="Harga Properti"
                 defaultValue={asurance}
                 decimalsLimit={2}
-                onValueChange={(value, name) => {
+                onValueChange={(value, _) => {
                   setAsurance(value)
                 }}
-                style={{ width: '94.5%', borderColor: '#D8DBE0', borderWidth: 1, borderRadius: 5 }}
+                style={{
+                  width: '94.5%',
+                  borderColor: '#D8DBE0',
+                  borderWidth: 1,
+                  borderRadius: 5,
+                }}
               />
             </CInputGroup>
             <hr />
             {_renderMix()}
             <div className="d-grid gap-2">
-              <CButton
-                onClick={calculateKPR}
-                color="primary"
-              >
+              <CButton onClick={calculateKPR} color="primary">
                 Hitung
               </CButton>
             </div>
