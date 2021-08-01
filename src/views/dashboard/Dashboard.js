@@ -685,7 +685,7 @@ const Dashboard = () => {
               />
             </CInputGroup>
             <hr />
-            <b>Suku Bunga Floating</b>
+            <b>Suku Bunga {interestType === 'serbaguna' ? "" : "Floating"} </b>
             <CInputGroup className="mb-3">
               <CFormControl
                 placeholder="Suku bunga"
