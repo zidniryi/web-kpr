@@ -71,7 +71,9 @@ const Dashboard = () => {
 
   // Annaual interest
   const _calculateAnuitasInterest = () => {
+    // set null data agar data resultsDataKPR ter refresh
     schemaInstallmentDetail.splice(0, schemaInstallmentDetail.length)
+
     let propertyPrice = harga
     let dpProperty = (dp / 100) * harga
     // Left price 500 jt - dp
@@ -121,7 +123,9 @@ const Dashboard = () => {
 
   // Mix interest
   const _calculateMixInterest = () => {
+    // set null data agar data resultsDataKPR ter refresh
     schemaInstallmentDetail.splice(0, schemaInstallmentDetail.length)
+
     let propertyPrice = harga
     let dpProperty = (dp / 100) * harga
     let currentValueProperty = harga - dpProperty
