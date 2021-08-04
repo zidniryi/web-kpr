@@ -34,6 +34,7 @@ const Dashboard = () => {
   const [schemaInstallmentDetail, setschemaInstallmentDetail] = useState([])
   const [resultsDataKPR, setResultsDataKPR] = useState([])
   const [adminCost, setAdminCost] = useState(0)
+  const [interest, setInterest] = useState(0)
   // For float
   const [floatInterest, setfloatInterest] = useState(0)
   const [floatYears, setfloatYears] = useState(0)
@@ -53,13 +54,9 @@ const Dashboard = () => {
   })
 
   const formatData = (data) => {
-    return (
-      parseFloat(data)
-        .toLocaleString('id-ID', {
-          minimumFractionDigits: 2,
-        })
-        .slice(0, -2) + '00'
-    )
+    return parseFloat(data).toLocaleString('id-ID', {
+      maximumFractionDigits: 0,
+    })
   }
 
   // PMT Formule
@@ -239,19 +236,20 @@ const Dashboard = () => {
     else if (interestType === 'serbaguna') _calculateSerbaguna()
 
     const interesetMontly = yearlyInterestReturn / 12
-    const monthlyInstallment = resultsDataKPR.length > 0 ? resultsDataKPR[1].monthlyInterest : 0
     const firstPayment =
-      parseFloat(asurance) + parseFloat(adminCost) + parseFloat(monthlyInstallment.toFixed(2))
+      parseFloat(asurance) +
+      parseFloat(adminCost) +
+      parseFloat(schemaInstallmentDetail[1].monthlyInterest)
     setRincianPinjaman({
       ...rincianPinjaman,
-      angsuranPerbulan: parseFloat(monthlyInstallment.toFixed(2)).toLocaleString('id-ID'),
-      biayaAdmin: parseFloat(adminCostValue).toLocaleString('id-ID'),
-      biayaAsuransi: parseFloat(asurance).toLocaleString('id-ID'),
+      angsuranPerbulan: formatData(schemaInstallmentDetail[1].monthlyInterest),
+      biayaAdmin: formatData(adminCostValue),
+      biayaAsuransi: formatData(asurance),
       bunga: `${yearlyInterestReturn} % Tahun / ${interesetMontly.toFixed(2)} % Bulan`,
-      hargaProperty: parseFloat(harga).toLocaleString('id-ID'),
-      pembayaranPertama: firstPayment.toLocaleString('id-ID'),
+      hargaProperty: formatData(harga),
+      pembayaranPertama: formatData(firstPayment),
       tenor: `${longYear} Tahun / ${longYear * 12} Bulan`,
-      uangMuka: parseFloat((dp / 100) * harga).toLocaleString('id-ID'),
+      uangMuka: formatData((dp / 100) * harga),
     })
   }
 
@@ -380,7 +378,6 @@ const Dashboard = () => {
   }
 
   const _renderTables = () => {
-
     const maxFloat = parseFloat(1).toFixed(2)
     const ExcelFile = ReactExport.ExcelFile
     const ExcelSheet = ReactExport.ExcelFile.ExcelSheet
@@ -425,16 +422,14 @@ const Dashboard = () => {
         data: resultsDataKPR.map((data) => {
           return [
             data.monthNumber.toString(),
-            formatData(data.monthlyInterest.toFixed(2)),
-            formatData(data.baseInstallment.toFixed(2)),
-            formatData(data.totalMonthlyInstallment.toFixed(2)),
+            formatData(data.monthlyInterest),
+            formatData(data.baseInstallment),
+            formatData(data.totalMonthlyInstallment),
             data.totalDebtLeft < maxFloat
-              ? '0,00'
-              : parseFloat(data.totalDebtLeft)
-                  .toLocaleString('id-ID', {
-                    minimumFractionDigits: 2,
-                  })
-                  .slice(0, -2) + '00',
+              ? '0'
+              : parseFloat(data.totalDebtLeft).toLocaleString('id-ID', {
+                  maximumFractionDigits: 0,
+                }),
           ]
         }),
       },
@@ -461,22 +456,11 @@ const Dashboard = () => {
                     <CTableHeaderCell scope="row">
                       <center>{data.monthNumber}</center>
                     </CTableHeaderCell>
+                    <CTableDataCell> Rp {formatData(data.monthlyInterest)}</CTableDataCell>
+                    <CTableDataCell>Rp {formatData(data.baseInstallment)}</CTableDataCell>
+                    <CTableDataCell>Rp {formatData(data.totalMonthlyInstallment)}</CTableDataCell>
                     <CTableDataCell>
-                      {' '}
-                      Rp {parseFloat(data.monthlyInterest.toFixed(2)).toLocaleString('id-ID')}
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      Rp {parseFloat(data.baseInstallment.toFixed(2)).toLocaleString('id-ID')}
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      Rp{' '}
-                      {parseFloat(data.totalMonthlyInstallment.toFixed(2)).toLocaleString('id-ID')}
-                    </CTableDataCell>
-                    <CTableDataCell>
-                      Rp{' '}
-                      {data.totalDebtLeft < maxFloat
-                        ? 0
-                        : parseFloat(data.totalDebtLeft).toLocaleString('id-ID')}
+                      Rp {data.totalDebtLeft < maxFloat ? 0 : formatData(data.totalDebtLeft)}
                     </CTableDataCell>
                   </CTableRow>
                 ))}
@@ -685,7 +669,8 @@ const Dashboard = () => {
               />
             </CInputGroup>
             <hr />
-            <b>Suku Bunga {interestType === 'serbaguna' ? "" : "Floating"} </b>
+            <hr />
+            <b>Suku Bunga {interestType === 'serbaguna' ? '' : 'Floating'} </b>
             <CInputGroup className="mb-3">
               <CFormControl
                 placeholder="Suku bunga"
@@ -714,7 +699,7 @@ const Dashboard = () => {
               <CurrencyInput
                 id="input-example"
                 name="input-name"
-                placeholder="Harga Properti"
+                placeholder="Biaya Asuransi"
                 defaultValue={asurance}
                 decimalsLimit={2}
                 onValueChange={(value, _) => {
@@ -728,7 +713,6 @@ const Dashboard = () => {
                 }}
               />
             </CInputGroup>
-            <hr />
             {_renderMix()}
             <div className="d-grid gap-2">
               <CButton onClick={calculateKPR} color="primary">

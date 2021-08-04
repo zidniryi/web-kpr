@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
 })
 
 const formatData = (data) => {
-  return parseFloat(data).toLocaleString('id-ID', { minimumFractionDigits: 2 }).slice(0, -2) + '00'
+  return parseFloat(data).toLocaleString('id-ID', { maximumFractionDigits: 0 })
 }
 
 const maxFloat = parseFloat(1).toFixed(2)
@@ -197,27 +197,26 @@ function PdfDoc({ dataInstallment, dataLoan }) {
                     </View>
                     <View style={styles.tableColLight}>
                       <Text style={styles.tableCell}>
-                        Rp. {formatData(item.monthlyInterest.toFixed(2))}
+                        Rp. {formatData(item.monthlyInterest)}
                       </Text>
                     </View>
                     <View style={styles.tableCol}>
                       <Text style={styles.tableCell}>
-                        Rp. {formatData(item.baseInstallment.toFixed(2))}
+                        Rp. {formatData(item.baseInstallment)}
                       </Text>
                     </View>
                     <View style={styles.tableColLight}>
                       <Text style={styles.tableCell}>
-                        Rp. {formatData(item.totalMonthlyInstallment.toFixed(2))}
+                        Rp. {formatData(item.totalMonthlyInstallment)}
                       </Text>
                     </View>
                     <View style={styles.tableCol}>
                       <Text style={styles.tableCell}>
                         Rp.{' '}
                         {item.totalDebtLeft < maxFloat
-                          ? '0,00'
+                          ? '0'
                           : parseFloat(item.totalDebtLeft)
-                              .toLocaleString('id-ID', { minimumFractionDigits: 2 })
-                              .slice(0, -2) + '00'}
+                              .toLocaleString('id-ID', { maximumFractionDigits: 0 })}
                       </Text>
                     </View>
                   </View>
