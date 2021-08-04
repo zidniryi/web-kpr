@@ -226,7 +226,7 @@ const Dashboard = () => {
     }
  
     setschemaInstallmentDetail(schemaInstallmentDetail);
-    setresultsDataKPR(schemaInstallmentDetail);
+    setResultsDataKPR(schemaInstallmentDetail);
   }
 
   const calculateKPR = () => {
