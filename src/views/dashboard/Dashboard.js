@@ -182,52 +182,51 @@ const Dashboard = () => {
     setData()
   }
 
-  // serbaguna interest
+// serbaguna interest
   const _calculateSerbaguna = () => {
-    schemaInstallmentDetail.splice(0, schemaInstallmentDetail.length)
-    let propertyPrice = harga
-    let dpProperty = (dp / 100) * harga
+    // setNullData()
+    let propertyPrice = harga;
+    let dpProperty = dp / 100 * harga;
     // Left price 500 jt - dp
     const longMonthInstalemnt = longYear * 12
-    let flatInterest = yearlyInterestReturn / 12
-
-    let flatInterestYear = parseInt(longYear)
-
+    let flatInterest = yearlyInterestReturn / 12;
+ 
+    let flatInterestYear = parseInt(longYear);
+ 
     let totalPropertyPrice = propertyPrice - dpProperty,
       monthlyInterest = 0,
       baseInstallment = 0,
       totalMonthlyInstallment = 0,
-      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment
-
+      totalDebtLeft = totalPropertyPrice - totalMonthlyInstallment;
+ 
     let monthlySchema = {
       monthNumber: 0,
       monthlyInterest: 0,
       baseInstallment: 0,
       totalMonthlyInstallment: 0,
-      totalDebtLeft: harga,
+      totalDebtLeft: harga
     }
-
-    schemaInstallmentDetail.push(monthlySchema)
-    baseInstallment = ((yearlyInterestReturn / 12) * harga) / 100
-    monthlyInterest = (totalDebtLeft * (flatInterest / 12)) / 100
-    totalMonthlyInstallment = baseInstallment + monthlyInterest
-    for (let i = 1; i <= flatInterestYear * 12; ++i) {
+    schemaInstallmentDetail.push(monthlySchema);
+    baseInstallment = yearlyInterestReturn / 12 * harga / 100;
+    monthlyInterest = totalDebtLeft * (flatInterest / 12) / 100;
+    totalMonthlyInstallment = baseInstallment + monthlyInterest;
+    for (let i = 1; i <= (flatInterestYear * 12); ++i) {
       const finalScheme = schemaInstallmentDetail[i - 1].totalDebtLeft
-      let totalMain =
-        countPMT(harga, longMonthInstalemnt, yearlyInterestReturn) -
-        ((yearlyInterestReturn / 12) * finalScheme) / 100
-      totalDebtLeft = totalDebtLeft - totalMain
-
+      let totalMain = countPMT(harga, longMonthInstalemnt, yearlyInterestReturn) - yearlyInterestReturn / 12 * finalScheme / 100
+      totalDebtLeft = totalDebtLeft - totalMain;
+ 
       monthlySchema = {
         monthNumber: i,
-        monthlyInterest: parseFloat(countPMT(harga, longMonthInstalemnt, yearlyInterestReturn)),
-        baseInstallment: parseFloat(((yearlyInterestReturn / 12) * harga) / 100),
-        totalMonthlyInstallment: parseFloat(totalMain),
-        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2),
+        monthlyInterest: parseFloat(yearlyInterestReturn / 12 * harga / 100) +  harga/longMonthInstalemnt,
+        baseInstallment: parseFloat(yearlyInterestReturn / 12 * harga / 100),
+        totalMonthlyInstallment: harga/longMonthInstalemnt,
+        totalDebtLeft: parseFloat(totalDebtLeft).toFixed(2)
       }
-      schemaInstallmentDetail.push(monthlySchema)
+      schemaInstallmentDetail.push(monthlySchema);
     }
-    setData()
+ 
+    setschemaInstallmentDetail(schemaInstallmentDetail);
+    setresultsDataKPR(schemaInstallmentDetail);
   }
 
   const calculateKPR = () => {
